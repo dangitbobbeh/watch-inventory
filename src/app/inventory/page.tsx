@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { prisma } from "../../../lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 export default async function InventoryPage() {
   const watches = await prisma.watch.findMany({
