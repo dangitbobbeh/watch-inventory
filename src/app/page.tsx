@@ -48,12 +48,6 @@ export default async function Home() {
     <main className="max-w-6xl mx-auto p-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Watch Inventory</h1>
-        <Link
-          href="/inventory"
-          className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800"
-        >
-          View Inventory
-        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

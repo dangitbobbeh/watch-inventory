@@ -10,12 +10,6 @@ export default async function InventoryPage() {
     <main className="max-w-6xl mx-auto p-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Inventory</h1>
-        <Link
-          href="/inventory/new"
-          className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800"
-        >
-          Add Watch
-        </Link>
       </div>
 
       {watches.length === 0 ? (
