@@ -8,34 +8,35 @@ generator client {
 }
 
 model Watch {
-  id            String        @id @default(cuid())
-  brand         String
-  model         String
-  reference     String?
-  serial        String?
-  caliber       String?
-  caseMaterial  String?
-  dialColor     String?
-  diameter      Int?
-  condition     String?
-  notes         String?
-  purchasePrice Decimal?
-  purchaseDate  DateTime?
-  status        String        @default("in_stock") // in_stock, sold, traded, consigned
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  transactions  Transaction[]
-}
+  id           String  @id @default(cuid())
+  brand        String
+  model        String
+  reference    String?
+  serial       String?
+  caliber      String?
+  caseMaterial String?
+  dialColor    String?
+  diameter     Int?
+  condition    String?
+  notes        String?
 
-model Transaction {
-  id        String   @id @default(cuid())
-  type      String // purchase, sale, trade_in, trade_out
-  amount    Decimal
-  date      DateTime
-  platform  String? // website, ebay, in_person
-  buyer     String?
-  notes     String?
-  watchId   String
-  watch     Watch    @relation(fields: [watchId], references: [id])
+  // Purchase
+  purchasePrice  Decimal?
+  purchaseDate   DateTime?
+  purchaseSource String?
+
+  // Pre-sale costs (service, parts, etc.)
+  additionalCosts Decimal? @default(0)
+
+  // Sale
+  salePrice      Decimal?
+  saleDate       DateTime?
+  platformFees   Decimal?  @default(0)
+  salesTax       Decimal?  @default(0)
+  marketingCosts Decimal?  @default(0)
+  shippingCosts  Decimal?  @default(0)
+
+  status    String   @default("in_stock")
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
