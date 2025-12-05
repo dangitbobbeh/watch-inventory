@@ -1,15 +1,41 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Watch {
+  id            String        @id @default(cuid())
+  brand         String
+  model         String
+  reference     String?
+  serial        String?
+  caliber       String?
+  caseMaterial  String?
+  dialColor     String?
+  diameter      Int?
+  condition     String?
+  notes         String?
+  purchasePrice Decimal?
+  purchaseDate  DateTime?
+  status        String        @default("in_stock") // in_stock, sold, traded, consigned
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  transactions  Transaction[]
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+  type      String // purchase, sale, trade_in, trade_out
+  amount    Decimal
+  date      DateTime
+  platform  String? // website, ebay, in_person
+  buyer     String?
+  notes     String?
+  watchId   String
+  watch     Watch    @relation(fields: [watchId], references: [id])
+  createdAt DateTime @default(now())
 }
