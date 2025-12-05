@@ -18,6 +18,7 @@ type Watch = {
   purchasePrice: number | null;
   purchaseDate: Date | null;
   purchaseSource: string | null;
+  purchaseShippingCost: number | null;
   additionalCosts: number | null;
   salePrice: number | null;
   saleDate: Date | null;
@@ -37,6 +38,7 @@ export default function WatchForm({ watch }: { watch: Watch }) {
 
   // Calculate profit dynamically
   const purchasePrice = Number(watch.purchasePrice) || 0;
+  const purchaseShipping = Number(watch.purchaseShippingCost) || 0;
   const additionalCosts = Number(watch.additionalCosts) || 0;
   const salePrice = Number(watch.salePrice) || 0;
   const platformFees = Number(watch.platformFees) || 0;
@@ -44,7 +46,7 @@ export default function WatchForm({ watch }: { watch: Watch }) {
   const marketingCosts = Number(watch.marketingCosts) || 0;
   const shippingCosts = Number(watch.shippingCosts) || 0;
 
-  const totalCost = purchasePrice + additionalCosts;
+  const totalCost = purchasePrice + purchaseShipping + additionalCosts;
   const totalSaleCosts = platformFees + marketingCosts + shippingCosts;
   const netProceeds = salePrice - totalSaleCosts;
   const profit = watch.salePrice ? netProceeds - totalCost : null;
@@ -226,6 +228,12 @@ export default function WatchForm({ watch }: { watch: Watch }) {
             placeholder="eBay, Grailzee, private seller, etc."
           />
           <FormField
+            label="Shipping Cost"
+            name="purchaseShippingCost"
+            type="number"
+            defaultValue={watch.purchaseShippingCost ?? 0}
+          />
+          <FormField
             label="Additional Costs"
             name="additionalCosts"
             type="number"
@@ -235,7 +243,13 @@ export default function WatchForm({ watch }: { watch: Watch }) {
         </div>
         <div className="mt-3 text-sm text-gray-600">
           Total Cost:{" "}
-          <span className="font-semibold">${totalCost.toLocaleString()}</span>
+          <span className="font-semibold">
+            $
+            {totalCost.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </span>
         </div>
       </section>
 

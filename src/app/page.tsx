@@ -1,34 +1,75 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
-export default async function Home() {
-  const watches = await prisma.watch.findMany();
+type SerializedWatch = {
+  id: string;
+  brand: string;
+  model: string;
+  reference: string | null;
+  status: string;
+  purchasePrice: number | null;
+  additionalCosts: number | null;
+  purchaseShippingCost: number | null;
+  salePrice: number | null;
+  platformFees: number | null;
+  marketingCosts: number | null;
+  shippingCosts: number | null;
+  salesTax: number | null;
+};
 
-  // Calculate stats
+export default async function Home() {
+  const watchesRaw = await prisma.watch.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+
+  // Serialize Decimal fields
+  const watches: SerializedWatch[] = watchesRaw.map((w) => ({
+    id: w.id,
+    brand: w.brand,
+    model: w.model,
+    reference: w.reference,
+    status: w.status,
+    purchasePrice: w.purchasePrice ? Number(w.purchasePrice) : null,
+    additionalCosts: w.additionalCosts ? Number(w.additionalCosts) : null,
+    purchaseShippingCost: w.purchaseShippingCost
+      ? Number(w.purchaseShippingCost)
+      : null,
+    salePrice: w.salePrice ? Number(w.salePrice) : null,
+    platformFees: w.platformFees ? Number(w.platformFees) : null,
+    marketingCosts: w.marketingCosts ? Number(w.marketingCosts) : null,
+    shippingCosts: w.shippingCosts ? Number(w.shippingCosts) : null,
+    salesTax: w.salesTax ? Number(w.salesTax) : null,
+  }));
+
+  // Calculate stats using the serialized data
   const inStock = watches.filter((w) => w.status === "in_stock");
   const sold = watches.filter((w) => w.status === "sold");
+
+  // ... rest of the stats calculations stay the same
 
   const inStockCount = inStock.length;
   const soldCount = sold.length;
 
-  // Inventory value = purchase price + additional costs for in-stock watches
+  // Inventory value = purchase price + shipping + additional costs for in-stock watches
   const inventoryValue = inStock.reduce((sum, w) => {
-    const purchase = Number(w.purchasePrice) || 0;
-    const additional = Number(w.additionalCosts) || 0;
-    return sum + purchase + additional;
+    const purchase = w.purchasePrice || 0;
+    const shipping = w.purchaseShippingCost || 0;
+    const additional = w.additionalCosts || 0;
+    return sum + purchase + shipping + additional;
   }, 0);
 
   // Total profit from sold watches
   const totalProfit = sold.reduce((sum, w) => {
-    const salePrice = Number(w.salePrice) || 0;
-    const purchasePrice = Number(w.purchasePrice) || 0;
-    const additionalCosts = Number(w.additionalCosts) || 0;
-    const platformFees = Number(w.platformFees) || 0;
-    const marketingCosts = Number(w.marketingCosts) || 0;
-    const shippingCosts = Number(w.shippingCosts) || 0;
-    const salesTax = Number(w.salesTax) || 0;
+    const salePrice = w.salePrice || 0;
+    const purchasePrice = w.purchasePrice || 0;
+    const purchaseShipping = w.purchaseShippingCost || 0;
+    const additionalCosts = w.additionalCosts || 0;
+    const platformFees = w.platformFees || 0;
+    const marketingCosts = w.marketingCosts || 0;
+    const shippingCosts = w.shippingCosts || 0;
+    const salesTax = w.salesTax || 0;
 
-    const totalCost = purchasePrice + additionalCosts;
+    const totalCost = purchasePrice + purchaseShipping + additionalCosts;
     const totalSaleCosts =
       platformFees + marketingCosts + shippingCosts + salesTax;
     const profit = salePrice - totalSaleCosts - totalCost;
@@ -114,7 +155,7 @@ function DashboardCard({
   );
 }
 
-function RecentWatches({ watches }: { watches: any[] }) {
+function RecentWatches({ watches }: { watches: SerializedWatch[] }) {
   if (watches.length === 0) {
     return <p className="text-gray-500">No watches yet. Add your first one!</p>;
   }
@@ -137,15 +178,17 @@ function RecentWatches({ watches }: { watches: any[] }) {
         </thead>
         <tbody>
           {watches.map((watch) => {
-            const purchasePrice = Number(watch.purchasePrice) || 0;
-            const additionalCosts = Number(watch.additionalCosts) || 0;
-            const salePrice = Number(watch.salePrice) || 0;
-            const platformFees = Number(watch.platformFees) || 0;
-            const marketingCosts = Number(watch.marketingCosts) || 0;
-            const shippingCosts = Number(watch.shippingCosts) || 0;
-            const salesTax = Number(watch.salesTax) || 0;
+            const purchasePrice = watch.purchasePrice || 0;
+            const purchaseShipping = watch.purchaseShippingCost || 0;
+            const additionalCosts = watch.additionalCosts || 0;
+            const salePrice = watch.salePrice || 0;
+            const platformFees = watch.platformFees || 0;
+            const marketingCosts = watch.marketingCosts || 0;
+            const shippingCosts = watch.shippingCosts || 0;
+            const salesTax = watch.salesTax || 0;
 
-            const totalCost = purchasePrice + additionalCosts;
+            const totalCost =
+              purchasePrice + purchaseShipping + additionalCosts;
             const totalSaleCosts =
               platformFees + marketingCosts + shippingCosts + salesTax;
             const profit = watch.salePrice

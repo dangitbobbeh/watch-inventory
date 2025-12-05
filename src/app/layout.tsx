@@ -40,6 +40,7 @@ export default function RootLayout({
               <NavLink href="/">Dashboard</NavLink>
               <NavLink href="/inventory">Inventory</NavLink>
               <NavLink href="/inventory/new">Add Watch</NavLink>
+              <NavLink href="/import">Import</NavLink>
             </div>
           </div>
         </nav>

@@ -8,34 +8,40 @@ generator client {
 }
 
 model Watch {
-  id           String  @id @default(cuid())
+  id String @id @default(cuid())
+
+  // Watch details
   brand        String
   model        String
   reference    String?
   serial       String?
+  year         String?
   caliber      String?
   caseMaterial String?
   dialColor    String?
   diameter     Int?
   condition    String?
+  accessories  String?
   notes        String?
 
   // Purchase
-  purchasePrice  Decimal?
-  purchaseDate   DateTime?
-  purchaseSource String?
-
-  // Pre-sale costs (service, parts, etc.)
-  additionalCosts Decimal? @default(0)
+  purchasePrice        Decimal?
+  purchaseDate         DateTime?
+  purchaseSource       String?
+  purchaseShippingCost Decimal?  @default(0)
+  additionalCosts      Decimal?  @default(0)
 
   // Sale
   salePrice      Decimal?
   saleDate       DateTime?
+  salePlatform   String?
   platformFees   Decimal?  @default(0)
   salesTax       Decimal?  @default(0)
   marketingCosts Decimal?  @default(0)
   shippingCosts  Decimal?  @default(0)
 
+  // Metadata
+  importId  String?  @unique
   status    String   @default("in_stock")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -40,6 +40,7 @@ export async function PUT(
       purchasePrice: data.purchasePrice,
       purchaseDate: data.purchaseDate ? new Date(data.purchaseDate) : null,
       purchaseSource: data.purchaseSource,
+      purchaseShippingCost: data.purchaseShippingCost,
       additionalCosts: data.additionalCosts,
       salePrice: data.salePrice,
       saleDate: data.saleDate ? new Date(data.saleDate) : null,

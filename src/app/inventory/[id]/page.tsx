@@ -21,14 +21,17 @@ export default async function WatchPage({
   const serializedWatch = {
     ...watch,
     purchasePrice: watch.purchasePrice ? Number(watch.purchasePrice) : null,
+    purchaseShippingCost: watch.purchaseShippingCost
+      ? Number(watch.purchaseShippingCost)
+      : null,
     additionalCosts: watch.additionalCosts
       ? Number(watch.additionalCosts)
       : null,
     salePrice: watch.salePrice ? Number(watch.salePrice) : null,
     platformFees: watch.platformFees ? Number(watch.platformFees) : null,
-    salesTax: watch.salesTax ? Number(watch.salesTax) : null,
     marketingCosts: watch.marketingCosts ? Number(watch.marketingCosts) : null,
     shippingCosts: watch.shippingCosts ? Number(watch.shippingCosts) : null,
+    salesTax: watch.salesTax ? Number(watch.salesTax) : null,
   };
 
   return (
