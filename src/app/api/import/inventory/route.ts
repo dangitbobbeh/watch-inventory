@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 export async function POST(request: Request) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { rows } = await request.json();
 
   let success = 0;
@@ -9,7 +16,6 @@ export async function POST(request: Request) {
 
   for (const row of rows) {
     try {
-      // Map your spreadsheet columns to our schema
       const id = row["ID"]?.trim();
       const brand = row["Brand"]?.trim();
       const model = row["Model"]?.trim();
@@ -21,6 +27,7 @@ export async function POST(request: Request) {
 
       await prisma.watch.create({
         data: {
+          userId: session.user.id,
           importId: id || null,
           brand,
           model,
@@ -56,7 +63,6 @@ function parseDate(value: string | undefined): Date | null {
 
 function parseNumber(value: string | undefined): number | null {
   if (!value?.trim()) return null;
-  // Remove currency symbols, commas, etc.
   const cleaned = value.replace(/[^0-9.-]/g, "");
   const num = parseFloat(cleaned);
   return isNaN(num) ? null : num;

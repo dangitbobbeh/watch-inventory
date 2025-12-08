@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getRequiredSession } from "@/lib/session";
 
 type SerializedWatch = {
   id: string;
@@ -18,11 +19,13 @@ type SerializedWatch = {
 };
 
 export default async function Home() {
+  const session = await getRequiredSession();
+
   const watchesRaw = await prisma.watch.findMany({
+    where: { userId: session.user.id },
     orderBy: { createdAt: "desc" },
   });
 
-  // Serialize Decimal fields
   const watches: SerializedWatch[] = watchesRaw.map((w) => ({
     id: w.id,
     brand: w.brand,
@@ -41,16 +44,12 @@ export default async function Home() {
     salesTax: w.salesTax ? Number(w.salesTax) : null,
   }));
 
-  // Calculate stats using the serialized data
   const inStock = watches.filter((w) => w.status === "in_stock");
   const sold = watches.filter((w) => w.status === "sold");
-
-  // ... rest of the stats calculations stay the same
 
   const inStockCount = inStock.length;
   const soldCount = sold.length;
 
-  // Inventory value = purchase price + shipping + additional costs for in-stock watches
   const inventoryValue = inStock.reduce((sum, w) => {
     const purchase = w.purchasePrice || 0;
     const shipping = w.purchaseShippingCost || 0;
@@ -58,7 +57,6 @@ export default async function Home() {
     return sum + purchase + shipping + additional;
   }, 0);
 
-  // Total profit from sold watches
   const totalProfit = sold.reduce((sum, w) => {
     const salePrice = w.salePrice || 0;
     const purchasePrice = w.purchasePrice || 0;
@@ -77,18 +75,16 @@ export default async function Home() {
     return sum + profit;
   }, 0);
 
-  // Total revenue (sum of all sale prices)
   const totalRevenue = sold.reduce((sum, w) => {
-    return sum + (Number(w.salePrice) || 0);
+    return sum + (w.salePrice || 0);
   }, 0);
 
-  // Average profit per sale
   const avgProfit = soldCount > 0 ? totalProfit / soldCount : 0;
 
   return (
     <main className="max-w-6xl mx-auto p-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Watch Inventory</h1>
+        <h1 className="text-3xl font-bold">Dashboard</h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -126,7 +122,6 @@ export default async function Home() {
         />
       </div>
 
-      {/* Recent Activity */}
       <section>
         <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
         <RecentWatches watches={watches.slice(0, 5)} />

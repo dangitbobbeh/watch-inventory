@@ -1,18 +1,25 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 const anthropic = new Anthropic();
 
 export async function POST(request: Request) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { messages } = await request.json();
 
   if (!messages || messages.length === 0) {
     return NextResponse.json({ error: "Messages required" }, { status: 400 });
   }
 
-  // Fetch all data for context
   const watches = await prisma.watch.findMany({
+    where: { userId: session.user.id },
     orderBy: { createdAt: "desc" },
   });
 
@@ -20,7 +27,6 @@ export async function POST(request: Request) {
   const sold = watches.filter((w) => w.status === "sold");
   const now = new Date();
 
-  // Calculate comprehensive stats
   const soldWithStats = sold.map((w) => {
     const purchasePrice = Number(w.purchasePrice) || 0;
     const purchaseShipping = Number(w.purchaseShippingCost) || 0;
@@ -92,7 +98,6 @@ export async function POST(request: Request) {
     };
   });
 
-  // Summary statistics
   const totalProfit = soldWithStats.reduce((sum, w) => sum + w.profit, 0);
   const totalRevenue = soldWithStats.reduce((sum, w) => sum + w.salePrice, 0);
   const avgProfit = sold.length > 0 ? totalProfit / sold.length : 0;
@@ -111,7 +116,6 @@ export async function POST(request: Request) {
     0
   );
 
-  // Profit by brand
   const profitByBrand: Record<
     string,
     { profit: number; count: number; avgDays: number }
@@ -129,7 +133,6 @@ export async function POST(request: Request) {
       profitByBrand[brand].avgDays / profitByBrand[brand].count;
   });
 
-  // Profit by platform
   const profitByPlatform: Record<
     string,
     { profit: number; count: number; revenue: number }
@@ -144,7 +147,6 @@ export async function POST(request: Request) {
     profitByPlatform[platform].revenue += w.salePrice;
   });
 
-  // Profit by source
   const profitBySource: Record<
     string,
     { profit: number; count: number; totalCost: number }
@@ -159,7 +161,6 @@ export async function POST(request: Request) {
     profitBySource[source].totalCost += w.totalCost;
   });
 
-  // Monthly breakdown
   const monthlyStats: Record<
     string,
     { profit: number; count: number; revenue: number }

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { getRequiredSession } from "@/lib/session";
 import WatchForm from "./watch-form";
 
 export default async function WatchPage({
@@ -7,17 +8,17 @@ export default async function WatchPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await getRequiredSession();
   const { id } = await params;
 
   const watch = await prisma.watch.findUnique({
     where: { id },
   });
 
-  if (!watch) {
+  if (!watch || watch.userId !== session.user.id) {
     notFound();
   }
 
-  // Serialize Decimal fields to numbers for the client component
   const serializedWatch = {
     ...watch,
     purchasePrice: watch.purchasePrice ? Number(watch.purchasePrice) : null,

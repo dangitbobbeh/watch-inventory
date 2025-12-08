@@ -1,21 +1,26 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 const anthropic = new Anthropic();
 
 export async function POST() {
-  // Fetch all data
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const watches = await prisma.watch.findMany({
+    where: { userId: session.user.id },
     orderBy: { createdAt: "desc" },
   });
 
   const inStock = watches.filter((w) => w.status === "in_stock");
   const sold = watches.filter((w) => w.status === "sold");
-
   const now = new Date();
 
-  // Prepare in-stock data with aging
   const inStockData = inStock.map((w) => {
     const totalCost =
       (Number(w.purchasePrice) || 0) +
@@ -42,7 +47,6 @@ export async function POST() {
     };
   });
 
-  // Prepare sold data for pattern analysis
   const soldData = sold.map((w) => {
     const purchasePrice = Number(w.purchasePrice) || 0;
     const purchaseShipping = Number(w.purchaseShippingCost) || 0;
@@ -83,7 +87,6 @@ export async function POST() {
     };
   });
 
-  // Calculate summary stats
   const avgDaysToSell =
     soldData.filter((w) => w.daysToSell).length > 0
       ? soldData.reduce((sum, w) => sum + (w.daysToSell || 0), 0) /

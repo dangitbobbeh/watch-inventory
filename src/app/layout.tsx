@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { auth, signOut } from "@/lib/auth";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,11 +19,13 @@ export const metadata: Metadata = {
   description: "Track your watch collection and sales",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <html lang="en">
       <body
@@ -36,16 +39,42 @@ export default function RootLayout({
             >
               Watch Inventory
             </Link>
-            <div className="flex gap-6">
-              <NavLink href="/">Dashboard</NavLink>
-              <NavLink href="/inventory">Inventory</NavLink>
-              <NavLink href="/reports">Reports</NavLink>
-              <NavLink href="/ai/chat">AI Chat</NavLink>
-              <NavLink href="/ai/pricing">AI Pricing</NavLink>
-              <NavLink href="/ai/advisor">AI Advisor</NavLink>
-              <NavLink href="/inventory/new">Add Watch</NavLink>
-              <NavLink href="/import">Import</NavLink>
-            </div>
+            {session ? (
+              <div className="flex items-center gap-6">
+                <NavLink href="/">Dashboard</NavLink>
+                <NavLink href="/inventory">Inventory</NavLink>
+                <NavLink href="/reports">Reports</NavLink>
+                <NavLink href="/ai/chat">AI Chat</NavLink>
+                <NavLink href="/ai/pricing">AI Pricing</NavLink>
+                <NavLink href="/ai/advisor">AI Advisor</NavLink>
+                <NavLink href="/inventory/new">Add Watch</NavLink>
+                <NavLink href="/import">Import</NavLink>
+                <div className="flex items-center gap-3 ml-4 pl-4 border-l">
+                  {session.user?.image && (
+                    <img
+                      src={session.user.image}
+                      alt=""
+                      className="w-8 h-8 rounded-full"
+                    />
+                  )}
+                  <form
+                    action={async () => {
+                      "use server";
+                      await signOut({ redirectTo: "/login" });
+                    }}
+                  >
+                    <button
+                      type="submit"
+                      className="text-sm text-gray-500 hover:text-gray-700"
+                    >
+                      Sign out
+                    </button>
+                  </form>
+                </div>
+              </div>
+            ) : (
+              <NavLink href="/login">Sign in</NavLink>
+            )}
           </div>
         </nav>
         {children}

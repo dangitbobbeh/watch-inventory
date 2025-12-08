@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getRequiredSession } from "@/lib/session";
 import InventoryFilters from "./inventory-filters";
 
 type SearchParams = {
@@ -14,11 +15,11 @@ export default async function InventoryPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  const session = await getRequiredSession();
   const params = await searchParams;
   const { q, status, source, platform } = params;
 
-  // Build the where clause dynamically
-  const where: any = {};
+  const where: Record<string, unknown> = { userId: session.user.id };
 
   if (q) {
     where.OR = [
@@ -46,8 +47,8 @@ export default async function InventoryPage({
     orderBy: { createdAt: "desc" },
   });
 
-  // Get unique sources and platforms for filter dropdowns
   const allWatches = await prisma.watch.findMany({
+    where: { userId: session.user.id },
     select: { purchaseSource: true, salePlatform: true },
   });
 

@@ -1,12 +1,16 @@
 import { prisma } from "@/lib/prisma";
+import { getRequiredSession } from "@/lib/session";
 
 export default async function ReportsPage() {
-  const watches = await prisma.watch.findMany();
+  const session = await getRequiredSession();
+
+  const watches = await prisma.watch.findMany({
+    where: { userId: session.user.id },
+  });
 
   const sold = watches.filter((w) => w.status === "sold");
   const inStock = watches.filter((w) => w.status === "in_stock");
 
-  // Calculate profit for each sold watch
   const soldWithProfit = sold.map((w) => {
     const salePrice = Number(w.salePrice) || 0;
     const purchasePrice = Number(w.purchasePrice) || 0;
@@ -34,7 +38,6 @@ export default async function ReportsPage() {
     return { ...w, profit, totalCost, daysToSell };
   });
 
-  // Profit by source
   const profitBySource = soldWithProfit.reduce((acc, w) => {
     const source = w.purchaseSource || "Unknown";
     if (!acc[source]) {
@@ -46,7 +49,6 @@ export default async function ReportsPage() {
     return acc;
   }, {} as Record<string, { profit: number; count: number; totalCost: number }>);
 
-  // Profit by platform
   const profitByPlatform = soldWithProfit.reduce((acc, w) => {
     const platform = w.salePlatform || "Unknown";
     if (!acc[platform]) {
@@ -58,7 +60,6 @@ export default async function ReportsPage() {
     return acc;
   }, {} as Record<string, { profit: number; count: number; revenue: number }>);
 
-  // Profit by brand
   const profitByBrand = soldWithProfit.reduce((acc, w) => {
     const brand = w.brand;
     if (!acc[brand]) {
@@ -72,13 +73,11 @@ export default async function ReportsPage() {
     return acc;
   }, {} as Record<string, { profit: number; count: number; avgDays: number; totalDays: number }>);
 
-  // Calculate average days per brand
   Object.keys(profitByBrand).forEach((brand) => {
     const b = profitByBrand[brand];
     b.avgDays = b.count > 0 ? Math.round(b.totalDays / b.count) : 0;
   });
 
-  // Monthly profit (last 12 months)
   const monthlyProfit = soldWithProfit.reduce((acc, w) => {
     if (!w.saleDate) return acc;
     const date = new Date(w.saleDate);
@@ -95,12 +94,10 @@ export default async function ReportsPage() {
     return acc;
   }, {} as Record<string, { profit: number; count: number; revenue: number }>);
 
-  // Sort monthly data
   const sortedMonths = Object.entries(monthlyProfit)
     .sort(([a], [b]) => a.localeCompare(b))
     .slice(-12);
 
-  // Top performers
   const topByProfit = [...soldWithProfit]
     .sort((a, b) => b.profit - a.profit)
     .slice(0, 5);
@@ -109,7 +106,6 @@ export default async function ReportsPage() {
     .sort((a, b) => a.profit - b.profit)
     .slice(0, 5);
 
-  // Inventory aging
   const now = new Date();
   const inStockAging = inStock
     .map((w) => {
@@ -127,7 +123,6 @@ export default async function ReportsPage() {
     })
     .sort((a, b) => b.daysInStock - a.daysInStock);
 
-  // Summary stats
   const totalProfit = soldWithProfit.reduce((sum, w) => sum + w.profit, 0);
   const avgProfit = sold.length > 0 ? totalProfit / sold.length : 0;
   const avgDaysToSell =
@@ -141,7 +136,6 @@ export default async function ReportsPage() {
     <main className="max-w-6xl mx-auto p-8">
       <h1 className="text-3xl font-bold mb-8">Reports</h1>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <SummaryCard
           title="Total Profit"
@@ -164,7 +158,6 @@ export default async function ReportsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Monthly Performance */}
         <section className="bg-white border rounded-lg p-6">
           <h2 className="text-lg font-semibold mb-4">Monthly Performance</h2>
           {sortedMonths.length === 0 ? (
@@ -195,7 +188,6 @@ export default async function ReportsPage() {
           )}
         </section>
 
-        {/* Profit by Source */}
         <section className="bg-white border rounded-lg p-6">
           <h2 className="text-lg font-semibold mb-4">Profit by Source</h2>
           {Object.keys(profitBySource).length === 0 ? (
@@ -228,7 +220,6 @@ export default async function ReportsPage() {
           )}
         </section>
 
-        {/* Profit by Platform */}
         <section className="bg-white border rounded-lg p-6">
           <h2 className="text-lg font-semibold mb-4">Profit by Platform</h2>
           {Object.keys(profitByPlatform).length === 0 ? (
@@ -261,7 +252,6 @@ export default async function ReportsPage() {
           )}
         </section>
 
-        {/* Profit by Brand */}
         <section className="bg-white border rounded-lg p-6">
           <h2 className="text-lg font-semibold mb-4">Profit by Brand</h2>
           {Object.keys(profitByBrand).length === 0 ? (
@@ -294,7 +284,6 @@ export default async function ReportsPage() {
           )}
         </section>
 
-        {/* Top Performers */}
         <section className="bg-white border rounded-lg p-6">
           <h2 className="text-lg font-semibold mb-4">Top Performers</h2>
           {topByProfit.length === 0 ? (
@@ -318,7 +307,6 @@ export default async function ReportsPage() {
           )}
         </section>
 
-        {/* Worst Performers */}
         <section className="bg-white border rounded-lg p-6">
           <h2 className="text-lg font-semibold mb-4">Lowest Performers</h2>
           {worstByProfit.length === 0 ? (
@@ -346,7 +334,6 @@ export default async function ReportsPage() {
           )}
         </section>
 
-        {/* Inventory Aging */}
         <section className="bg-white border rounded-lg p-6 lg:col-span-2">
           <h2 className="text-lg font-semibold mb-4">Inventory Aging</h2>
           {inStockAging.length === 0 ? (

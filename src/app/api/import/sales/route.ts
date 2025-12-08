@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 export async function POST(request: Request) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { rows } = await request.json();
 
   let success = 0;
@@ -9,7 +16,6 @@ export async function POST(request: Request) {
 
   for (const row of rows) {
     try {
-      // Find the watch by importId (your Watch ID column)
       const watchId = row["Watch ID"]?.trim();
 
       if (!watchId) {
@@ -17,8 +23,11 @@ export async function POST(request: Request) {
         continue;
       }
 
-      const watch = await prisma.watch.findUnique({
-        where: { importId: watchId },
+      const watch = await prisma.watch.findFirst({
+        where: {
+          importId: watchId,
+          userId: session.user.id,
+        },
       });
 
       if (!watch) {
@@ -26,7 +35,6 @@ export async function POST(request: Request) {
         continue;
       }
 
-      // Update with sale data
       await prisma.watch.update({
         where: { id: watch.id },
         data: {

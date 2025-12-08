@@ -79,7 +79,6 @@ export default function ChatPage() {
         <p className="text-gray-600">Ask anything about your watch business</p>
       </div>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto bg-white border rounded-lg p-4 mb-4">
         {messages.length === 0 ? (
           <div className="text-center py-8">
@@ -134,7 +133,6 @@ export default function ChatPage() {
         )}
       </div>
 
-      {/* Input */}
       <form onSubmit={handleSubmit} className="flex gap-2">
         <input
           type="text"

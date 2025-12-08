@@ -24,7 +24,6 @@ export default function ImportPage() {
     setResult(null);
 
     try {
-      // Parse and import inventory
       const inventoryData = await parseCSV(inventoryFile);
       const inventoryResult = await fetch("/api/import/inventory", {
         method: "POST",
@@ -40,7 +39,6 @@ export default function ImportPage() {
       let totalSuccess = invResponse.success;
       let allErrors = [...invResponse.errors];
 
-      // Parse and import sales if provided
       if (salesFile) {
         const salesData = await parseCSV(salesFile);
         const salesResult = await fetch("/api/import/sales", {

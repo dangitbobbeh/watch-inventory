@@ -1,10 +1,17 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 const anthropic = new Anthropic();
 
 export async function POST(request: Request) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { description } = await request.json();
 
   if (!description) {
@@ -14,13 +21,14 @@ export async function POST(request: Request) {
     );
   }
 
-  // Fetch historical sales data for context
   const soldWatches = await prisma.watch.findMany({
-    where: { status: "sold" },
+    where: {
+      status: "sold",
+      userId: session.user.id,
+    },
     orderBy: { saleDate: "desc" },
   });
 
-  // Prepare historical data summary
   const salesData = soldWatches.map((w) => {
     const purchasePrice = Number(w.purchasePrice) || 0;
     const purchaseShipping = Number(w.purchaseShippingCost) || 0;
