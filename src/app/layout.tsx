@@ -50,13 +50,11 @@ export default async function RootLayout({
                 <NavLink href="/inventory/new">Add Watch</NavLink>
                 <NavLink href="/import">Import</NavLink>
                 <div className="flex items-center gap-3 ml-4 pl-4 border-l">
-                  {session.user?.image && (
-                    <img
-                      src={session.user.image}
-                      alt=""
-                      className="w-8 h-8 rounded-full"
-                    />
-                  )}
+                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-sm font-medium">
+                    {session.user?.name?.[0]?.toUpperCase() ||
+                      session.user?.email?.[0]?.toUpperCase() ||
+                      "?"}
+                  </div>
                   <form
                     action={async () => {
                       "use server";
