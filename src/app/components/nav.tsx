@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import ThemeToggle from "./theme-toggle";
 
 type NavProps = {
   user: {
@@ -30,12 +31,12 @@ export default function Nav({ user, signOutAction }: NavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-white border-b sticky top-0 z-10">
+    <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-8 py-4">
         <div className="flex items-center justify-between">
           <Link
             href="/"
-            className="text-xl font-bold text-gray-900 hover:text-gray-700"
+            className="text-xl font-bold text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300"
           >
             Watch Inventory
           </Link>
@@ -56,8 +57,9 @@ export default function Nav({ user, signOutAction }: NavProps) {
                     {item.label}
                   </NavLink>
                 ))}
-                <div className="flex items-center gap-3 ml-4 pl-4 border-l">
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-sm font-medium">
+                <div className="flex items-center gap-3 ml-4 pl-4 border-l border-gray-200 dark:border-gray-700">
+                  <ThemeToggle />
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 text-sm font-medium">
                     {user.name?.[0]?.toUpperCase() ||
                       user.email?.[0]?.toUpperCase() ||
                       "?"}
@@ -65,7 +67,7 @@ export default function Nav({ user, signOutAction }: NavProps) {
                   <form action={signOutAction}>
                     <button
                       type="submit"
-                      className="text-sm text-gray-500 hover:text-gray-700"
+                      className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                     >
                       Sign out
                     </button>
@@ -74,23 +76,29 @@ export default function Nav({ user, signOutAction }: NavProps) {
               </div>
 
               {/* Mobile Menu Button */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 text-gray-600 hover:text-gray-900"
-              >
-                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
+              <div className="flex items-center gap-2 lg:hidden">
+                <ThemeToggle />
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                >
+                  {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                </button>
+              </div>
             </>
           ) : (
-            <NavLink href="/login" active={pathname === "/login"}>
-              Sign in
-            </NavLink>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <NavLink href="/login" active={pathname === "/login"}>
+                Sign in
+              </NavLink>
+            </div>
           )}
         </div>
 
         {/* Mobile Navigation */}
         {user && mobileMenuOpen && (
-          <div className="lg:hidden mt-4 pt-4 border-t">
+          <div className="lg:hidden mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
             <div className="flex flex-col gap-1">
               {navItems.map((item) => (
                 <NavLink
@@ -106,19 +114,21 @@ export default function Nav({ user, signOutAction }: NavProps) {
                   {item.label}
                 </NavLink>
               ))}
-              <div className="flex items-center justify-between mt-4 pt-4 border-t">
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-sm font-medium">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 text-sm font-medium">
                     {user.name?.[0]?.toUpperCase() ||
                       user.email?.[0]?.toUpperCase() ||
                       "?"}
                   </div>
-                  <span className="text-sm text-gray-600">{user.email}</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {user.email}
+                  </span>
                 </div>
                 <form action={signOutAction}>
                   <button
                     type="submit"
-                    className="text-sm text-gray-500 hover:text-gray-700"
+                    className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                   >
                     Sign out
                   </button>
@@ -150,8 +160,8 @@ function NavLink({
     : "px-3 py-2 rounded-lg text-sm font-medium transition-colors";
 
   const activeStyles = active
-    ? "bg-gray-100 text-gray-900"
-    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50";
+    ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white"
+    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800";
 
   return (
     <Link

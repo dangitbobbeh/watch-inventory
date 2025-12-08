@@ -2,13 +2,21 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getRequiredSession } from "@/lib/session";
 import InventoryFilters from "./inventory-filters";
+import InventoryTable from "./inventory-table";
 
 type SearchParams = {
   q?: string;
   status?: string;
   source?: string;
   platform?: string;
+  sort?: string;
+  order?: string;
+  page?: string;
+  pageSize?: string;
 };
+
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
+const DEFAULT_PAGE_SIZE = 25;
 
 export default async function InventoryPage({
   searchParams,
@@ -17,7 +25,21 @@ export default async function InventoryPage({
 }) {
   const session = await getRequiredSession();
   const params = await searchParams;
-  const { q, status, source, platform } = params;
+  const {
+    q,
+    status,
+    source,
+    platform,
+    sort = "createdAt",
+    order = "desc",
+    page = "1",
+    pageSize = String(DEFAULT_PAGE_SIZE),
+  } = params;
+
+  const currentPage = Math.max(1, parseInt(page));
+  const currentPageSize = PAGE_SIZE_OPTIONS.includes(parseInt(pageSize))
+    ? parseInt(pageSize)
+    : DEFAULT_PAGE_SIZE;
 
   const where: Record<string, unknown> = { userId: session.user.id };
 
@@ -42,9 +64,30 @@ export default async function InventoryPage({
     where.salePlatform = { contains: platform, mode: "insensitive" };
   }
 
+  const totalCount = await prisma.watch.count({ where });
+  const totalPages = Math.ceil(totalCount / currentPageSize);
+
+  const orderBy: Record<string, string> = {};
+  const validSortFields = [
+    "brand",
+    "model",
+    "createdAt",
+    "purchasePrice",
+    "salePrice",
+    "status",
+    "purchaseDate",
+  ];
+  if (validSortFields.includes(sort)) {
+    orderBy[sort] = order === "asc" ? "asc" : "desc";
+  } else {
+    orderBy.createdAt = "desc";
+  }
+
   const watches = await prisma.watch.findMany({
     where,
-    orderBy: { createdAt: "desc" },
+    orderBy,
+    skip: (currentPage - 1) * currentPageSize,
+    take: currentPageSize,
   });
 
   const allWatches = await prisma.watch.findMany({
@@ -59,6 +102,25 @@ export default async function InventoryPage({
     ...new Set(allWatches.map((w) => w.salePlatform).filter(Boolean)),
   ] as string[];
 
+  const serializedWatches = watches.map((w) => ({
+    id: w.id,
+    brand: w.brand,
+    model: w.model,
+    reference: w.reference,
+    status: w.status,
+    purchaseSource: w.purchaseSource,
+    purchasePrice: w.purchasePrice ? Number(w.purchasePrice) : null,
+    purchaseShippingCost: w.purchaseShippingCost
+      ? Number(w.purchaseShippingCost)
+      : null,
+    additionalCosts: w.additionalCosts ? Number(w.additionalCosts) : null,
+    salePrice: w.salePrice ? Number(w.salePrice) : null,
+    platformFees: w.platformFees ? Number(w.platformFees) : null,
+    marketingCosts: w.marketingCosts ? Number(w.marketingCosts) : null,
+    shippingCosts: w.shippingCosts ? Number(w.shippingCosts) : null,
+    salesTax: w.salesTax ? Number(w.salesTax) : null,
+  }));
+
   return (
     <main className="max-w-6xl mx-auto p-8">
       <div className="mb-8">
@@ -71,130 +133,152 @@ export default async function InventoryPage({
         currentFilters={params}
       />
 
-      <p className="text-sm text-gray-500 mb-4">
-        {watches.length} {watches.length === 1 ? "watch" : "watches"} found
-      </p>
-
-      {watches.length === 0 ? (
-        <p className="text-gray-500">No watches match your filters.</p>
-      ) : (
-        <div className="bg-white border rounded-lg overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-100 border-b">
-              <tr>
-                <th className="text-left p-4 text-gray-900 font-semibold">
-                  Brand
-                </th>
-                <th className="text-left p-4 text-gray-900 font-semibold">
-                  Model
-                </th>
-                <th className="text-left p-4 text-gray-900 font-semibold">
-                  Reference
-                </th>
-                <th className="text-left p-4 text-gray-900 font-semibold">
-                  Source
-                </th>
-                <th className="text-left p-4 text-gray-900 font-semibold">
-                  Status
-                </th>
-                <th className="text-right p-4 text-gray-900 font-semibold">
-                  Cost
-                </th>
-                <th className="text-right p-4 text-gray-900 font-semibold">
-                  Profit
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {watches.map((watch) => {
-                const purchasePrice = Number(watch.purchasePrice) || 0;
-                const purchaseShipping =
-                  Number(watch.purchaseShippingCost) || 0;
-                const additionalCosts = Number(watch.additionalCosts) || 0;
-                const salePrice = Number(watch.salePrice) || 0;
-                const platformFees = Number(watch.platformFees) || 0;
-                const marketingCosts = Number(watch.marketingCosts) || 0;
-                const shippingCosts = Number(watch.shippingCosts) || 0;
-                const salesTax = Number(watch.salesTax) || 0;
-
-                const totalCost =
-                  purchasePrice + purchaseShipping + additionalCosts;
-                const totalSaleCosts =
-                  platformFees + marketingCosts + shippingCosts + salesTax;
-                const profit = watch.salePrice
-                  ? salePrice - totalSaleCosts - totalCost
-                  : null;
-
-                return (
-                  <tr key={watch.id} className="border-b hover:bg-gray-50">
-                    <td className="p-4 text-gray-900">
-                      <Link
-                        href={`/inventory/${watch.id}`}
-                        className="text-blue-700 hover:text-blue-900 hover:underline font-medium"
-                      >
-                        {watch.brand}
-                      </Link>
-                    </td>
-                    <td className="p-4 text-gray-900">{watch.model}</td>
-                    <td className="p-4 text-gray-600">
-                      {watch.reference || "—"}
-                    </td>
-                    <td className="p-4 text-gray-600">
-                      {watch.purchaseSource || "—"}
-                    </td>
-                    <td className="p-4">
-                      <StatusBadge status={watch.status} />
-                    </td>
-                    <td className="p-4 text-right text-gray-900">
-                      $
-                      {totalCost.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </td>
-                    <td className="p-4 text-right">
-                      {profit !== null ? (
-                        <span
-                          className={
-                            profit >= 0 ? "text-green-600" : "text-red-600"
-                          }
-                        >
-                          {profit >= 0 ? "+" : ""}$
-                          {profit.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </span>
-                      ) : (
-                        <span className="text-gray-400">—</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          {totalCount} {totalCount === 1 ? "watch" : "watches"} found
+        </p>
+        <div className="flex items-center gap-4">
+          <PageSizeSelector
+            currentPageSize={currentPageSize}
+            searchParams={params}
+          />
+          {totalPages > 1 && (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Page {currentPage} of {totalPages}
+            </p>
+          )}
         </div>
+      </div>
+
+      <InventoryTable watches={serializedWatches} sort={sort} order={order} />
+
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          searchParams={params}
+        />
       )}
     </main>
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    in_stock: "bg-green-100 text-green-800",
-    sold: "bg-blue-100 text-blue-800",
-    traded: "bg-purple-100 text-purple-800",
-    consigned: "bg-yellow-100 text-yellow-800",
-  };
+function PageSizeSelector({
+  currentPageSize,
+  searchParams,
+}: {
+  currentPageSize: number;
+  searchParams: SearchParams;
+}) {
+  function getPageSizeUrl(size: number) {
+    const params = new URLSearchParams();
+    Object.entries(searchParams).forEach(([key, value]) => {
+      if (value && key !== "pageSize" && key !== "page") params.set(key, value);
+    });
+    params.set("pageSize", size.toString());
+    return `/inventory?${params.toString()}`;
+  }
 
   return (
-    <span
-      className={`px-2 py-1 rounded text-sm font-medium ${
-        styles[status] || "bg-gray-100"
-      }`}
-    >
-      {status.replace("_", " ")}
-    </span>
+    <div className="flex items-center gap-2 text-sm">
+      <span className="text-gray-500 dark:text-gray-400">Show:</span>
+      <div className="flex gap-1">
+        {PAGE_SIZE_OPTIONS.map((size) => (
+          <Link
+            key={size}
+            href={getPageSizeUrl(size)}
+            className={`px-2 py-1 rounded ${
+              size === currentPageSize
+                ? "bg-black text-white dark:bg-white dark:text-black"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+            }`}
+          >
+            {size}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Pagination({
+  currentPage,
+  totalPages,
+  searchParams,
+}: {
+  currentPage: number;
+  totalPages: number;
+  searchParams: SearchParams;
+}) {
+  function getPageUrl(page: number) {
+    const params = new URLSearchParams();
+    Object.entries(searchParams).forEach(([key, value]) => {
+      if (value && key !== "page") params.set(key, value);
+    });
+    params.set("page", page.toString());
+    return `/inventory?${params.toString()}`;
+  }
+
+  const pages: (number | string)[] = [];
+
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) pages.push(i);
+  } else {
+    pages.push(1);
+    if (currentPage > 3) pages.push("...");
+
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+
+    for (let i = start; i <= end; i++) pages.push(i);
+
+    if (currentPage < totalPages - 2) pages.push("...");
+    pages.push(totalPages);
+  }
+
+  return (
+    <div className="flex items-center justify-center gap-2 mt-6">
+      <Link
+        href={getPageUrl(currentPage - 1)}
+        className={`px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm ${
+          currentPage === 1
+            ? "pointer-events-none opacity-50"
+            : "hover:bg-gray-50 dark:hover:bg-gray-800"
+        }`}
+      >
+        Previous
+      </Link>
+
+      {pages.map((page, i) =>
+        typeof page === "number" ? (
+          <Link
+            key={i}
+            href={getPageUrl(page)}
+            className={`px-3 py-2 rounded-lg text-sm ${
+              page === currentPage
+                ? "bg-black text-white dark:bg-white dark:text-black"
+                : "border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+            }`}
+          >
+            {page}
+          </Link>
+        ) : (
+          <span key={i} className="px-2 text-gray-400">
+            ...
+          </span>
+        )
+      )}
+
+      <Link
+        href={getPageUrl(currentPage + 1)}
+        className={`px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm ${
+          currentPage === totalPages
+            ? "pointer-events-none opacity-50"
+            : "hover:bg-gray-50 dark:hover:bg-gray-800"
+        }`}
+      >
+        Next
+      </Link>
+    </div>
   );
 }
