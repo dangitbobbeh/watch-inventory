@@ -3,8 +3,8 @@
 A full-stack web application for watch dealers and collectors to manage inventory, track profits, and get AI-powered insights.
 
 **Live Demo:** [watch-inventory-two.vercel.app](https://watch-inventory-two.vercel.app/)
+<img width="1180" height="761" alt="Screenshot 2025-12-08 at 2 19 56 PM" src="https://github.com/user-attachments/assets/cb3c13b8-1433-41f8-a0b2-9457edc486cb" />
 
-<img width="1159" height="731" alt="Screenshot" src="https://github.com/user-attachments/assets/5395a02c-f834-44ee-94c1-95df5097c7a8" />
 
 ## Features
 
