@@ -4,7 +4,7 @@ A full-stack web application for watch dealers and collectors to manage inventor
 
 **Live Demo:** [watch-inventory-two.vercel.app](https://watch-inventory-two.vercel.app/)
 
-![Dashboard Screenshot](screenshot.png)
+<img width="1159" height="731" alt="Screenshot" src="https://github.com/user-attachments/assets/5395a02c-f834-44ee-94c1-95df5097c7a8" />
 
 ## Features
 
