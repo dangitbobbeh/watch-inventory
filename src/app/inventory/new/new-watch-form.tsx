@@ -1,11 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import Combobox from "../../../app/components/combobox";
+
+type AutocompleteOptions = {
+  brands: string[];
+  materials: string[];
+  conditions: string[];
+  sources: string[];
+  platforms: string[];
+};
 
 export default function NewWatchForm() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [options, setOptions] = useState<AutocompleteOptions>({
+    brands: [],
+    materials: [],
+    conditions: [],
+    sources: [],
+    platforms: [],
+  });
+
+  useEffect(() => {
+    fetch("/api/autocomplete")
+      .then((res) => res.json())
+      .then(setOptions)
+      .catch(() => {});
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -40,16 +65,22 @@ export default function NewWatchForm() {
       notes: formData.get("notes") || null,
     };
 
-    const res = await fetch("/api/watches", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
+    try {
+      const res = await fetch("/api/watches", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
 
-    if (res.ok) {
-      router.push("/inventory");
-    } else {
-      alert("Failed to save watch");
+      if (res.ok) {
+        toast.success("Watch added successfully!");
+        router.push("/inventory");
+      } else {
+        toast.error("Failed to save watch");
+        setSaving(false);
+      }
+    } catch {
+      toast.error("Something went wrong");
       setSaving(false);
     }
   }
@@ -60,8 +91,14 @@ export default function NewWatchForm() {
         <h2 className="text-lg font-semibold mb-4 text-gray-700">
           Watch Details
         </h2>
-        <div className="grid grid-cols-2 gap-4">
-          <FormField label="Brand" name="brand" required />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Combobox
+            label="Brand"
+            name="brand"
+            options={options.brands}
+            placeholder="e.g. Rolex, Omega, Breguet"
+            required
+          />
           <FormField label="Model" name="model" required />
           <FormField label="Reference" name="reference" />
           <FormField label="Serial" name="serial" />
@@ -71,11 +108,21 @@ export default function NewWatchForm() {
             placeholder="e.g. 2020 or c. 1985"
           />
           <FormField label="Caliber" name="caliber" />
-          <FormField label="Case Material" name="caseMaterial" />
+          <Combobox
+            label="Case Material"
+            name="caseMaterial"
+            options={options.materials}
+            placeholder="e.g. Steel, Yellow Gold, Platinum"
+          />
           <FormField label="Dial Color" name="dialColor" />
           <FormField label="Diameter (mm)" name="diameter" type="number" />
-          <FormField label="Condition" name="condition" />
-          <div className="col-span-2">
+          <Combobox
+            label="Condition"
+            name="condition"
+            options={options.conditions}
+            placeholder="e.g. Excellent, Good, Fair"
+          />
+          <div className="sm:col-span-2">
             <FormField
               label="Accessories"
               name="accessories"
@@ -87,16 +134,17 @@ export default function NewWatchForm() {
 
       <section>
         <h2 className="text-lg font-semibold mb-4 text-gray-700">Purchase</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
             label="Purchase Price"
             name="purchasePrice"
             type="number"
           />
           <FormField label="Purchase Date" name="purchaseDate" type="date" />
-          <FormField
+          <Combobox
             label="Source"
             name="purchaseSource"
+            options={options.sources}
             placeholder="eBay, dealer, private, etc."
           />
           <FormField
@@ -118,7 +166,7 @@ export default function NewWatchForm() {
         <textarea
           name="notes"
           rows={3}
-          className="w-full border rounded-lg px-3 py-2"
+          className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent transition-shadow"
         />
       </section>
 
@@ -126,14 +174,15 @@ export default function NewWatchForm() {
         <button
           type="submit"
           disabled={saving}
-          className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 disabled:opacity-50"
+          className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transition-colors"
         >
+          {saving && <Loader2 className="animate-spin" size={16} />}
           {saving ? "Saving..." : "Save Watch"}
         </button>
         <button
           type="button"
           onClick={() => router.push("/inventory")}
-          className="px-6 py-2 rounded-lg border hover:bg-gray-50"
+          className="px-6 py-2 rounded-lg border hover:bg-gray-50 transition-colors"
         >
           Cancel
         </button>
@@ -166,7 +215,7 @@ function FormField({
         required={required}
         placeholder={placeholder}
         step={type === "number" ? "0.01" : undefined}
-        className="w-full border rounded-lg px-3 py-2"
+        className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent transition-shadow"
       />
     </div>
   );

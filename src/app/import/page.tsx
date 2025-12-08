@@ -2,21 +2,21 @@
 
 import { useState } from "react";
 import Papa from "papaparse";
-
-type ImportResult = {
-  success: number;
-  errors: string[];
-};
+import { toast } from "sonner";
+import { Loader2, Upload, CheckCircle } from "lucide-react";
 
 export default function ImportPage() {
   const [inventoryFile, setInventoryFile] = useState<File | null>(null);
   const [salesFile, setSalesFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
-  const [result, setResult] = useState<ImportResult | null>(null);
+  const [result, setResult] = useState<{
+    success: number;
+    errors: string[];
+  } | null>(null);
 
   async function handleImport() {
     if (!inventoryFile) {
-      alert("Please select an inventory CSV file");
+      toast.error("Please select an inventory CSV file");
       return;
     }
 
@@ -57,7 +57,16 @@ export default function ImportPage() {
       }
 
       setResult({ success: totalSuccess, errors: allErrors });
+
+      if (allErrors.length === 0) {
+        toast.success(`Successfully imported ${totalSuccess} records!`);
+      } else {
+        toast.info(
+          `Imported ${totalSuccess} records with ${allErrors.length} errors`
+        );
+      }
     } catch (error) {
+      toast.error((error as Error).message);
       setResult({ success: 0, errors: [(error as Error).message] });
     } finally {
       setImporting(false);
@@ -86,17 +95,33 @@ export default function ImportPage() {
           <p className="text-gray-600 text-sm mb-4">
             Export your inventory sheet as CSV and upload it here.
           </p>
-          <input
-            type="file"
-            accept=".csv"
-            onChange={(e) => setInventoryFile(e.target.files?.[0] || null)}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800"
-          />
-          {inventoryFile && (
-            <p className="mt-2 text-sm text-green-600">
-              ✓ {inventoryFile.name}
-            </p>
-          )}
+          <label className="block">
+            <input
+              type="file"
+              accept=".csv"
+              onChange={(e) => setInventoryFile(e.target.files?.[0] || null)}
+              className="hidden"
+            />
+            <div
+              className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
+                inventoryFile
+                  ? "border-green-300 bg-green-50"
+                  : "border-gray-300 hover:border-gray-400"
+              }`}
+            >
+              {inventoryFile ? (
+                <div className="flex items-center justify-center gap-2 text-green-600">
+                  <CheckCircle size={20} />
+                  <span className="font-medium">{inventoryFile.name}</span>
+                </div>
+              ) : (
+                <div className="text-gray-500">
+                  <Upload className="mx-auto mb-2" size={24} />
+                  <span>Click to upload inventory CSV</span>
+                </div>
+              )}
+            </div>
+          </label>
         </section>
 
         <section className="bg-white border rounded-lg p-6">
@@ -107,30 +132,50 @@ export default function ImportPage() {
             Export your sales sheet as CSV. This will update inventory items
             with sale data using the Watch ID to match records.
           </p>
-          <input
-            type="file"
-            accept=".csv"
-            onChange={(e) => setSalesFile(e.target.files?.[0] || null)}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800"
-          />
-          {salesFile && (
-            <p className="mt-2 text-sm text-green-600">✓ {salesFile.name}</p>
-          )}
+          <label className="block">
+            <input
+              type="file"
+              accept=".csv"
+              onChange={(e) => setSalesFile(e.target.files?.[0] || null)}
+              className="hidden"
+            />
+            <div
+              className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
+                salesFile
+                  ? "border-green-300 bg-green-50"
+                  : "border-gray-300 hover:border-gray-400"
+              }`}
+            >
+              {salesFile ? (
+                <div className="flex items-center justify-center gap-2 text-green-600">
+                  <CheckCircle size={20} />
+                  <span className="font-medium">{salesFile.name}</span>
+                </div>
+              ) : (
+                <div className="text-gray-500">
+                  <Upload className="mx-auto mb-2" size={24} />
+                  <span>Click to upload sales CSV</span>
+                </div>
+              )}
+            </div>
+          </label>
         </section>
 
         <button
           onClick={handleImport}
           disabled={!inventoryFile || importing}
-          className="w-full bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 disabled:opacity-50"
+          className="w-full bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center justify-center gap-2 transition-colors"
         >
+          {importing && <Loader2 className="animate-spin" size={20} />}
           {importing ? "Importing..." : "Import Data"}
         </button>
 
         {result && (
           <section className="bg-white border rounded-lg p-6">
             <h2 className="text-lg font-semibold mb-4">Import Results</h2>
-            <p className="text-green-600 font-medium">
-              ✓ {result.success} records imported successfully
+            <p className="text-green-600 font-medium flex items-center gap-2">
+              <CheckCircle size={20} />
+              {result.success} records imported successfully
             </p>
             {result.errors.length > 0 && (
               <div className="mt-4">
