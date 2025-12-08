@@ -9,6 +9,7 @@ A full-stack web application for watch dealers and collectors to manage inventor
 ## Features
 
 ### Inventory Management
+
 - Track watches with detailed specs (brand, model, reference, year, condition, accessories)
 - Record purchase details including source, price, shipping, and additional costs
 - Track sales with full cost breakdown (platform fees, marketing, shipping, sales tax)
@@ -16,11 +17,13 @@ A full-stack web application for watch dealers and collectors to manage inventor
 - Filter and search by brand, model, reference, status, source, or platform
 
 ### Financial Tracking
+
 - Dashboard with real-time stats: inventory value, total profit, average margins
 - Detailed profit breakdown per transaction
 - Support for cents-level precision on all financial fields
 
 ### Reports & Analytics
+
 - Profit by brand, source, and sale platform
 - Monthly performance trends
 - Top and bottom performers
@@ -28,11 +31,13 @@ A full-stack web application for watch dealers and collectors to manage inventor
 - Average days to sell metrics
 
 ### AI-Powered Tools
+
 - **Pricing Assistant**: Describe a watch you're considering and get purchase recommendations based on your sales history
 - **Inventory Advisor**: Get actionable insights on slow movers, pricing adjustments, and acquisition opportunities
 - **Business Chat**: Ask natural language questions about your business ("What's my best performing brand?", "How did Q3 compare to Q2?")
 
 ### Data Import
+
 - Bulk import from CSV (Google Sheets export)
 - Separate inventory and sales sheet support
 - Automatic field mapping
@@ -60,22 +65,26 @@ A full-stack web application for watch dealers and collectors to manage inventor
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/dangitbobbeh/watch-inventory.git
    cd watch-inventory
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Set up environment variables:
+
    ```bash
    cp .env.example .env
    ```
 
    Fill in your `.env` file:
+
    ```
    DATABASE_URL="postgresql://user:password@localhost:5432/watch_inventory"
    ANTHROPIC_API_KEY="sk-ant-..."
@@ -85,11 +94,13 @@ A full-stack web application for watch dealers and collectors to manage inventor
    ```
 
 4. Set up the database:
+
    ```bash
    npx prisma migrate dev
    ```
 
 5. Run the development server:
+
    ```bash
    npm run dev
    ```
@@ -125,6 +136,7 @@ openssl rand -base64 32
 5. Deploy
 
 After deployment, run migrations against production:
+
 ```bash
 DATABASE_URL="your-production-url" npx prisma migrate deploy
 ```
@@ -134,34 +146,36 @@ Don't forget to add your production callback URL to Google OAuth.
 ## CSV Import Format
 
 ### Inventory Sheet
-| Column | Description |
-|--------|-------------|
-| ID | Unique identifier (used to match sales) |
-| Brand | Watch brand |
-| Model | Watch model |
-| Material | Case material |
-| Reference Number | Reference/model number |
-| Year | Production year |
-| Accessories | Box, papers, etc. |
-| Comments | Notes |
-| Purchase Date | Date acquired |
-| Purchase Location | Source (eBay, dealer, etc.) |
-| Purchase Price | Amount paid |
-| Shipping Cost | Inbound shipping |
-| Additional Costs (service, etc.) | Service, repairs, etc. |
+
+| Column                           | Description                             |
+| -------------------------------- | --------------------------------------- |
+| ID                               | Unique identifier (used to match sales) |
+| Brand                            | Watch brand                             |
+| Model                            | Watch model                             |
+| Material                         | Case material                           |
+| Reference Number                 | Reference/model number                  |
+| Year                             | Production year                         |
+| Accessories                      | Box, papers, etc.                       |
+| Comments                         | Notes                                   |
+| Purchase Date                    | Date acquired                           |
+| Purchase Location                | Source (eBay, dealer, etc.)             |
+| Purchase Price                   | Amount paid                             |
+| Shipping Cost                    | Inbound shipping                        |
+| Additional Costs (service, etc.) | Service, repairs, etc.                  |
 
 ### Sales Sheet
-| Column | Description |
-|--------|-------------|
-| Sale ID | Unique sale identifier |
-| Watch ID | Matches ID from inventory sheet |
-| Sale Platform | Where it sold |
-| Sale Date | Date of sale |
-| Sold Price | Total sale price |
-| Sales Tax | Tax collected |
-| Platform Fees | eBay, PayPal fees, etc. |
-| Marketing Fees | Advertising costs |
-| Shipping Cost | Outbound shipping |
+
+| Column         | Description                     |
+| -------------- | ------------------------------- |
+| Sale ID        | Unique sale identifier          |
+| Watch ID       | Matches ID from inventory sheet |
+| Sale Platform  | Where it sold                   |
+| Sale Date      | Date of sale                    |
+| Sold Price     | Total sale price                |
+| Sales Tax      | Tax collected                   |
+| Platform Fees  | eBay, PayPal fees, etc.         |
+| Marketing Fees | Advertising costs               |
+| Shipping Cost  | Outbound shipping               |
 
 ## Contributing
 
@@ -170,7 +184,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
-
-## Acknowledgments
-
-Built with [Claude](https://anthropic.com/claude) by Anthropic.
