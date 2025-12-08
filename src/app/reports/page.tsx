@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getRequiredSession } from "@/lib/session";
+import EmptyState, { emptyStates } from "../components/empty-state";
 
 export default async function ReportsPage() {
   const session = await getRequiredSession();
@@ -10,6 +11,30 @@ export default async function ReportsPage() {
 
   const sold = watches.filter((w) => w.status === "sold");
   const inStock = watches.filter((w) => w.status === "in_stock");
+
+  // If no watches at all, show empty state
+  if (watches.length === 0) {
+    return (
+      <main className="max-w-6xl mx-auto p-8">
+        <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">
+          Reports
+        </h1>
+        <EmptyState {...emptyStates.inventory} />
+      </main>
+    );
+  }
+
+  // If no sold watches, show different empty state
+  if (sold.length === 0) {
+    return (
+      <main className="max-w-6xl mx-auto p-8">
+        <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">
+          Reports
+        </h1>
+        <EmptyState {...emptyStates.reports} />
+      </main>
+    );
+  }
 
   const soldWithProfit = sold.map((w) => {
     const salePrice = Number(w.salePrice) || 0;
@@ -134,7 +159,9 @@ export default async function ReportsPage() {
 
   return (
     <main className="max-w-6xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-8">Reports</h1>
+      <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">
+        Reports
+      </h1>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <SummaryCard
@@ -158,18 +185,24 @@ export default async function ReportsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <section className="bg-white border rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Monthly Performance</h2>
+        <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+          <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+            Monthly Performance
+          </h2>
           {sortedMonths.length === 0 ? (
-            <p className="text-gray-500">No sales data yet.</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              No sales data yet.
+            </p>
           ) : (
             <div className="space-y-2">
               {sortedMonths.map(([month, data]) => (
                 <div
                   key={month}
-                  className="flex justify-between items-center py-2 border-b"
+                  className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700"
                 >
-                  <span className="text-gray-700">{formatMonth(month)}</span>
+                  <span className="text-gray-700 dark:text-gray-300">
+                    {formatMonth(month)}
+                  </span>
                   <div className="text-right">
                     <span
                       className={`font-semibold ${
@@ -178,7 +211,7 @@ export default async function ReportsPage() {
                     >
                       {formatCurrency(data.profit)}
                     </span>
-                    <span className="text-gray-400 text-sm ml-2">
+                    <span className="text-gray-400 dark:text-gray-500 text-sm ml-2">
                       ({data.count} sold)
                     </span>
                   </div>
@@ -188,10 +221,14 @@ export default async function ReportsPage() {
           )}
         </section>
 
-        <section className="bg-white border rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Profit by Source</h2>
+        <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+          <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+            Profit by Source
+          </h2>
           {Object.keys(profitBySource).length === 0 ? (
-            <p className="text-gray-500">No sales data yet.</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              No sales data yet.
+            </p>
           ) : (
             <div className="space-y-2">
               {Object.entries(profitBySource)
@@ -199,9 +236,11 @@ export default async function ReportsPage() {
                 .map(([source, data]) => (
                   <div
                     key={source}
-                    className="flex justify-between items-center py-2 border-b"
+                    className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700"
                   >
-                    <span className="text-gray-700">{source}</span>
+                    <span className="text-gray-700 dark:text-gray-300">
+                      {source}
+                    </span>
                     <div className="text-right">
                       <span
                         className={`font-semibold ${
@@ -210,7 +249,7 @@ export default async function ReportsPage() {
                       >
                         {formatCurrency(data.profit)}
                       </span>
-                      <span className="text-gray-400 text-sm ml-2">
+                      <span className="text-gray-400 dark:text-gray-500 text-sm ml-2">
                         ({data.count} sold)
                       </span>
                     </div>
@@ -220,10 +259,14 @@ export default async function ReportsPage() {
           )}
         </section>
 
-        <section className="bg-white border rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Profit by Platform</h2>
+        <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+          <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+            Profit by Platform
+          </h2>
           {Object.keys(profitByPlatform).length === 0 ? (
-            <p className="text-gray-500">No sales data yet.</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              No sales data yet.
+            </p>
           ) : (
             <div className="space-y-2">
               {Object.entries(profitByPlatform)
@@ -231,9 +274,11 @@ export default async function ReportsPage() {
                 .map(([platform, data]) => (
                   <div
                     key={platform}
-                    className="flex justify-between items-center py-2 border-b"
+                    className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700"
                   >
-                    <span className="text-gray-700">{platform}</span>
+                    <span className="text-gray-700 dark:text-gray-300">
+                      {platform}
+                    </span>
                     <div className="text-right">
                       <span
                         className={`font-semibold ${
@@ -242,7 +287,7 @@ export default async function ReportsPage() {
                       >
                         {formatCurrency(data.profit)}
                       </span>
-                      <span className="text-gray-400 text-sm ml-2">
+                      <span className="text-gray-400 dark:text-gray-500 text-sm ml-2">
                         ({data.count} sold)
                       </span>
                     </div>
@@ -252,10 +297,14 @@ export default async function ReportsPage() {
           )}
         </section>
 
-        <section className="bg-white border rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Profit by Brand</h2>
+        <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+          <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+            Profit by Brand
+          </h2>
           {Object.keys(profitByBrand).length === 0 ? (
-            <p className="text-gray-500">No sales data yet.</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              No sales data yet.
+            </p>
           ) : (
             <div className="space-y-2">
               {Object.entries(profitByBrand)
@@ -263,9 +312,11 @@ export default async function ReportsPage() {
                 .map(([brand, data]) => (
                   <div
                     key={brand}
-                    className="flex justify-between items-center py-2 border-b"
+                    className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700"
                   >
-                    <span className="text-gray-700">{brand}</span>
+                    <span className="text-gray-700 dark:text-gray-300">
+                      {brand}
+                    </span>
                     <div className="text-right">
                       <span
                         className={`font-semibold ${
@@ -274,7 +325,7 @@ export default async function ReportsPage() {
                       >
                         {formatCurrency(data.profit)}
                       </span>
-                      <span className="text-gray-400 text-sm ml-2">
+                      <span className="text-gray-400 dark:text-gray-500 text-sm ml-2">
                         ({data.count} sold, ~{data.avgDays} days)
                       </span>
                     </div>
@@ -284,18 +335,22 @@ export default async function ReportsPage() {
           )}
         </section>
 
-        <section className="bg-white border rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Top Performers</h2>
+        <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+          <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+            Top Performers
+          </h2>
           {topByProfit.length === 0 ? (
-            <p className="text-gray-500">No sales data yet.</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              No sales data yet.
+            </p>
           ) : (
             <div className="space-y-2">
               {topByProfit.map((watch) => (
                 <div
                   key={watch.id}
-                  className="flex justify-between items-center py-2 border-b"
+                  className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700"
                 >
-                  <span className="text-gray-700">
+                  <span className="text-gray-700 dark:text-gray-300">
                     {watch.brand} {watch.model}
                   </span>
                   <span className="font-semibold text-green-600">
@@ -307,18 +362,22 @@ export default async function ReportsPage() {
           )}
         </section>
 
-        <section className="bg-white border rounded-lg p-6">
-          <h2 className="text-lg font-semibold mb-4">Lowest Performers</h2>
+        <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+          <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+            Lowest Performers
+          </h2>
           {worstByProfit.length === 0 ? (
-            <p className="text-gray-500">No sales data yet.</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              No sales data yet.
+            </p>
           ) : (
             <div className="space-y-2">
               {worstByProfit.map((watch) => (
                 <div
                   key={watch.id}
-                  className="flex justify-between items-center py-2 border-b"
+                  className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700"
                 >
-                  <span className="text-gray-700">
+                  <span className="text-gray-700 dark:text-gray-300">
                     {watch.brand} {watch.model}
                   </span>
                   <span
@@ -334,39 +393,46 @@ export default async function ReportsPage() {
           )}
         </section>
 
-        <section className="bg-white border rounded-lg p-6 lg:col-span-2">
-          <h2 className="text-lg font-semibold mb-4">Inventory Aging</h2>
+        <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 lg:col-span-2">
+          <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+            Inventory Aging
+          </h2>
           {inStockAging.length === 0 ? (
-            <p className="text-gray-500">No watches currently in stock.</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              No watches currently in stock.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b">
+                <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
                   <tr>
-                    <th className="text-left p-3 text-gray-700 font-medium">
+                    <th className="text-left p-3 text-gray-700 dark:text-gray-300 font-medium">
                       Watch
                     </th>
-                    <th className="text-left p-3 text-gray-700 font-medium">
+                    <th className="text-left p-3 text-gray-700 dark:text-gray-300 font-medium">
                       Source
                     </th>
-                    <th className="text-right p-3 text-gray-700 font-medium">
+                    <th className="text-right p-3 text-gray-700 dark:text-gray-300 font-medium">
                       Cost
                     </th>
-                    <th className="text-right p-3 text-gray-700 font-medium">
+                    <th className="text-right p-3 text-gray-700 dark:text-gray-300 font-medium">
                       Days in Stock
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {inStockAging.slice(0, 10).map((watch) => (
-                    <tr key={watch.id} className="border-b">
-                      <td className="p-3 text-gray-900">
+                    <tr
+                      key={watch.id}
+                      className="border-b border-gray-100 dark:border-gray-700"
+                    >
+                      <td className="p-3 text-gray-900 dark:text-white">
                         {watch.brand} {watch.model}
                       </td>
-                      <td className="p-3 text-gray-600">
+                      <td className="p-3 text-gray-600 dark:text-gray-400">
                         {watch.purchaseSource || "—"}
                       </td>
-                      <td className="p-3 text-right text-gray-900">
+                      <td className="p-3 text-right text-gray-900 dark:text-white">
                         {formatCurrency(watch.totalCost)}
                       </td>
                       <td className="p-3 text-right">
@@ -374,7 +440,7 @@ export default async function ReportsPage() {
                           className={
                             watch.daysInStock > 90
                               ? "text-red-600 font-medium"
-                              : "text-gray-600"
+                              : "text-gray-600 dark:text-gray-400"
                           }
                         >
                           {watch.daysInStock} days
@@ -406,10 +472,10 @@ function SummaryCard({
       ? "text-green-600"
       : color === "red"
       ? "text-red-600"
-      : "text-gray-900";
+      : "text-gray-900 dark:text-white";
   return (
-    <div className="bg-white border rounded-lg p-4">
-      <p className="text-gray-500 text-sm">{title}</p>
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+      <p className="text-gray-500 dark:text-gray-400 text-sm">{title}</p>
       <p className={`text-xl font-semibold mt-1 ${colorClass}`}>{value}</p>
     </div>
   );

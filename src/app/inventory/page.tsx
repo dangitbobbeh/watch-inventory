@@ -150,8 +150,12 @@ export default async function InventoryPage({
         </div>
       </div>
 
-      <InventoryTable watches={serializedWatches} sort={sort} order={order} />
-
+      <InventoryTable
+        watches={serializedWatches}
+        sort={sort}
+        order={order}
+        hasFilters={!!(q || status || source || platform)}
+      />
       {totalPages > 1 && (
         <Pagination
           currentPage={currentPage}

@@ -5,6 +5,7 @@ import {
   MessageSquare,
   Upload,
   TrendingUp,
+  Search,
   type LucideIcon,
 } from "lucide-react";
 
@@ -25,14 +26,21 @@ export default function EmptyState({
   action,
 }: EmptyStateProps) {
   return (
-    <div className="bg-white border rounded-lg p-12 text-center">
-      <Icon className="mx-auto text-gray-300 mb-4" size={48} />
-      <h3 className="text-lg font-medium text-gray-900 mb-2">{title}</h3>
-      <p className="text-gray-500 mb-6 max-w-sm mx-auto">{description}</p>
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-12 text-center">
+      <Icon
+        className="mx-auto text-gray-300 dark:text-gray-600 mb-4"
+        size={48}
+      />
+      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+        {title}
+      </h3>
+      <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
+        {description}
+      </p>
       {action && (
         <Link
           href={action.href}
-          className="inline-flex items-center px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+          className="inline-flex items-center px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
         >
           {action.label}
         </Link>
@@ -49,6 +57,13 @@ export const emptyStates = {
       "Get started by adding your first watch to track your inventory and profits.",
     action: { label: "Add Watch", href: "/inventory/new" },
   },
+  inventoryFiltered: {
+    icon: Search,
+    title: "No watches found",
+    description:
+      "Try adjusting your search or filters to find what you're looking for.",
+    action: { label: "Clear Filters", href: "/inventory" },
+  },
   reports: {
     icon: BarChart3,
     title: "No sales data yet",
@@ -56,29 +71,26 @@ export const emptyStates = {
       "Once you record some sales, you'll see detailed analytics and reports here.",
     action: { label: "View Inventory", href: "/inventory" },
   },
+  recentIn: {
+    icon: Package,
+    title: "No recent acquisitions",
+    description: "Watches you add will appear here.",
+    action: { label: "Add Watch", href: "/inventory/new" },
+  },
+  recentOut: {
+    icon: TrendingUp,
+    title: "No recent sales",
+    description: "When you sell watches, they'll appear here.",
+  },
   chat: {
     icon: MessageSquare,
     title: "Start a conversation",
     description:
       "Ask me anything about your watch business—inventory, profits, trends, and more.",
   },
-  search: {
-    icon: Package,
-    title: "No watches found",
-    description:
-      "Try adjusting your search or filters to find what you're looking for.",
-    action: { label: "Clear Filters", href: "/inventory" },
-  },
   import: {
     icon: Upload,
     title: "Import your data",
     description: "Upload your inventory and sales CSVs to get started quickly.",
-  },
-  profit: {
-    icon: TrendingUp,
-    title: "No profit data yet",
-    description:
-      "Sell some watches to start tracking your profits and performance.",
-    action: { label: "View Inventory", href: "/inventory" },
   },
 };
