@@ -57,7 +57,6 @@ export default function InventoryFilters({
   return (
     <div className="bg-white border rounded-lg p-4 mb-6">
       <div className="flex flex-wrap gap-4">
-        {/* Search */}
         <form onSubmit={handleSearch} className="flex-1 min-w-[200px]">
           <div className="flex gap-2">
             <input
@@ -76,7 +75,6 @@ export default function InventoryFilters({
           </div>
         </form>
 
-        {/* Status Filter */}
         <select
           value={currentFilters.status || ""}
           onChange={(e) => updateFilters("status", e.target.value)}
@@ -89,7 +87,6 @@ export default function InventoryFilters({
           <option value="consigned">Consigned</option>
         </select>
 
-        {/* Source Filter */}
         {sources.length > 0 && (
           <select
             value={currentFilters.source || ""}
@@ -105,7 +102,6 @@ export default function InventoryFilters({
           </select>
         )}
 
-        {/* Platform Filter */}
         {platforms.length > 0 && (
           <select
             value={currentFilters.platform || ""}
@@ -121,7 +117,6 @@ export default function InventoryFilters({
           </select>
         )}
 
-        {/* Clear Filters */}
         {hasFilters && (
           <button
             onClick={clearFilters}
