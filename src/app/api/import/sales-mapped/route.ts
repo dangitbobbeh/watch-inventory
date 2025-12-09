@@ -1,41 +1,52 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { auth } from '@/lib/auth';
+import { parseDate, parseNumber, cleanString } from '@/lib/import-utils';
+import { Prisma } from '@prisma/client';
 
 export async function POST(request: Request) {
   const session = await auth();
-
+  
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const { rows } = await request.json();
-
+  
   let success = 0;
   const errors: string[] = [];
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     try {
-      const importId = row.importId?.trim();
-
+      const importId = cleanString(row.importId);
+      
       if (!importId) {
         errors.push(`Row ${i + 1}: missing Watch ID`);
         continue;
       }
 
       const watch = await prisma.watch.findFirst({
-        where: {
+        where: { 
           importId,
           userId: session.user.id,
         },
       });
 
       if (!watch) {
-        errors.push(
-          `Row ${i + 1}: Watch ID "${importId}" not found in inventory`
-        );
+        errors.push(`Row ${i + 1}: Watch ID "${importId}" not found in inventory`);
         continue;
+      }
+
+      // Parse and merge custom data
+      let customData = (watch.customData as Record<string, unknown>) || {};
+      if (row._customData) {
+        try {
+          const newCustomData = JSON.parse(row._customData);
+          customData = { ...customData, ...newCustomData };
+        } catch {
+          // Ignore parse errors
+        }
       }
 
       await prisma.watch.update({
@@ -43,34 +54,22 @@ export async function POST(request: Request) {
         data: {
           saleDate: parseDate(row.saleDate),
           salePrice: parseNumber(row.salePrice),
-          salePlatform: row.salePlatform?.trim() || null,
+          salePlatform: cleanString(row.salePlatform),
           platformFees: parseNumber(row.platformFees),
           salesTax: parseNumber(row.salesTax),
           marketingCosts: parseNumber(row.marketingCosts),
           shippingCosts: parseNumber(row.shippingCosts),
-          status: "sold",
+          status: 'sold',
+          customData: Object.keys(customData).length > 0 ? customData as Prisma.JsonObject : Prisma.JsonNull,
         },
       });
 
       success++;
     } catch (error) {
-      const msg = error instanceof Error ? error.message : "Unknown error";
+      const msg = error instanceof Error ? error.message : 'Unknown error';
       errors.push(`Row ${i + 1}: ${msg}`);
     }
   }
 
   return NextResponse.json({ success, errors });
-}
-
-function parseDate(value: string | undefined): Date | null {
-  if (!value?.trim()) return null;
-  const date = new Date(value.trim());
-  return isNaN(date.getTime()) ? null : date;
-}
-
-function parseNumber(value: string | undefined): number | null {
-  if (!value?.trim()) return null;
-  const cleaned = value.replace(/[^0-9.-]/g, "");
-  const num = parseFloat(cleaned);
-  return isNaN(num) ? null : num;
 }

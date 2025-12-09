@@ -1,0 +1,9 @@
+Row #,Brand,Model,Ref,Serial,Cost,Asking,Sold Price,Status,Purchase Date,Sale Date,Random Column,Another Unused,Empty Column
+1,Rolex,Submariner,116610LV,,$12500.00,$15000,,"For Sale",01/15/2024,,,test,
+2,Omega,,"300M",ABC123,$4,200,5500,4800,Sold,2024-01-20,2024-03-15,ignore,this,
+3,,Speedmaster,311.30.42.30.01.005,XYZ789,3800,,,Available,Jan 15 2024,,,data,
+4,Tudor,Black Bay 58,79030N,MT123456,3100.50,3900.00,,in_stock,15-01-2024,,junk,,
+5,Grand Seiko,Snowflake,SBGA211,GS987654,"$5,500.00","$6,800","","Listed","2024/01/20",,more,junk,
+6,Patek Philippe,Nautilus,5711/1A,PP123,$95000,$150000,$142000,COMPLETED,2023-12-01,2024-02-28,extra,,
+7,Cartier,Santos,,CART456,5800,7200,6900,sold,,,columns,,
+8,IWC,Pilot's Watch,IW377714,IWC789,4500,,,$4800,Available,2024-01-01,2024-04-01,everywhere,,

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import Combobox from "../../../app/components/combobox";
+import { Database } from "lucide-react";
 
 type Watch = {
   id: string;
@@ -36,6 +37,7 @@ type Watch = {
   status: string;
   createdAt: Date;
   updatedAt: Date;
+  customData: Record<string, string> | null;
 };
 
 type AutocompleteOptions = {
@@ -472,6 +474,29 @@ export default function WatchForm({ watch }: { watch: Watch }) {
                 })}
               </span>
             </div>
+          </div>
+        </section>
+      )}
+      {watch.customData && Object.keys(watch.customData).length > 0 && (
+        <section className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+          <div className="flex items-center gap-2 mb-4">
+            <Database
+              size={18}
+              className="text-purple-600 dark:text-purple-400"
+            />
+            <h2 className="text-lg font-semibold text-purple-900 dark:text-purple-100">
+              Custom Fields
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {Object.entries(watch.customData).map(([key, value]) => (
+              <div key={key}>
+                <label className="block text-sm font-medium text-purple-700 dark:text-purple-300 mb-1">
+                  {key}
+                </label>
+                <p className="text-purple-900 dark:text-purple-100">{value}</p>
+              </div>
+            ))}
           </div>
         </section>
       )}

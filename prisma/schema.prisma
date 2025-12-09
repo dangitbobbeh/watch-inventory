@@ -71,6 +71,7 @@ model Watch {
   condition    String?
   accessories  String?
   notes        String?
+  customData   Json? // Stores arbitrary user data as JSON
 
   // Purchase
   purchasePrice        Decimal?

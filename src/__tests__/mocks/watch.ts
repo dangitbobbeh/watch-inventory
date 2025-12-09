@@ -1,0 +1,38 @@
+import { Watch } from "@prisma/client";
+
+export function createMockWatch(overrides: Partial<Watch> = {}): Watch {
+  return {
+    id: "watch-1",
+    userId: "user-123",
+    importId: null,
+    brand: "Rolex",
+    model: "Submariner",
+    reference: null,
+    serial: null,
+    year: null,
+    caliber: null,
+    caseMaterial: null,
+    dialColor: null,
+    diameter: null,
+    condition: null,
+    accessories: null,
+    purchaseDate: null,
+    purchaseSource: null,
+    purchasePrice: null,
+    purchaseShippingCost: null,
+    additionalCosts: null,
+    notes: null,
+    status: "in_stock",
+    saleDate: null,
+    salePrice: null,
+    salePlatform: null,
+    platformFees: null,
+    salesTax: null,
+    shippingCosts: null,
+    marketingCosts: null,
+    customData: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...overrides,
+  };
+}
