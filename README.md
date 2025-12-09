@@ -1,186 +1,199 @@
-# Watch Inventory
+# ⌚ Watch Inventory
 
-A full-stack web application for watch dealers and collectors to manage inventory, track profits, and get AI-powered insights.
+A full-stack inventory management system for luxury watch dealers, featuring AI-powered CSV import, profit analytics, and real-time business insights.
 
 **Live Demo:** [watch-inventory-two.vercel.app](https://watch-inventory-two.vercel.app/)
+
+![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
+![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat-square&logo=prisma)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?style=flat-square&logo=tailwind-css)
+![Tests](https://img.shields.io/badge/Tests-120+-brightgreen?style=flat-square)
+
 <img width="1230" height="762" alt="Screenshot 2025-12-08 at 2 26 12 PM" src="https://github.com/user-attachments/assets/9db8541e-e7f3-461b-94d4-7ed0d13b8695" />
 
+## ✨ Features
 
-## Features
+### 🤖 AI-Powered CSV Import
 
-### Inventory Management
+Upload any CSV format and Claude automatically maps columns to the correct fields—no manual configuration required.
 
-- Track watches with detailed specs (brand, model, reference, year, condition, accessories)
-- Record purchase details including source, price, shipping, and additional costs
-- Track sales with full cost breakdown (platform fees, marketing, shipping, sales tax)
-- Automatic profit calculation per watch
+- **Smart column detection**: "Price Paid" → `purchasePrice`, "S/N" → `serial`, "Sold For" → `salePrice`
+- **Status normalization**: Handles 15+ variations ("For Sale", "Listed", "Available" → `in_stock`)
+- **Flexible date parsing**: ISO, US (MM/DD/YYYY), European (DD-MM-YYYY), natural language
+- **Currency formatting**: Strips symbols and commas ($12,500.00 → 12500)
+- **Custom fields**: Columns that don't fit the schema are preserved as JSON
+- **Two import modes**: Create new inventory OR update existing watches with sale data
+
+### 📊 Inventory Management
+
+- Track watches with detailed specs (brand, model, reference, serial, year, condition, accessories)
+- Record full purchase details (source, price, shipping, service costs)
+- Track sales with complete cost breakdown (platform fees, marketing, shipping, tax)
+- Automatic profit/loss calculation per watch
 - Filter and search by brand, model, reference, status, source, or platform
+- Sortable columns with pagination
 
-### Financial Tracking
+### 💰 Financial Analytics
 
-- Dashboard with real-time stats: inventory value, total profit, average margins
-- Detailed profit breakdown per transaction
-- Support for cents-level precision on all financial fields
+- Real-time dashboard: inventory count, total sales, profit, average margin
+- Detailed P&L breakdown per transaction
+- ROI and margin calculations
+- Support for cents-level precision
 
-### Reports & Analytics
+### 📈 Reports
 
-- Profit by brand, source, and sale platform
+- Profit breakdown by brand, source, and sale platform
 - Monthly performance trends
 - Top and bottom performers
 - Inventory aging analysis (days in stock)
 - Average days to sell metrics
 
-### AI-Powered Tools
+### 🧠 AI Business Tools
 
-- **Pricing Assistant**: Describe a watch you're considering and get purchase recommendations based on your sales history
-- **Inventory Advisor**: Get actionable insights on slow movers, pricing adjustments, and acquisition opportunities
-- **Business Chat**: Ask natural language questions about your business ("What's my best performing brand?", "How did Q3 compare to Q2?")
+- **Pricing Assistant**: Get purchase recommendations based on your historical sales data
+- **Inventory Advisor**: Actionable insights on slow movers, pricing adjustments, and opportunities
+- **Business Chat**: Natural language queries ("What's my best brand?", "How did Q3 compare to Q2?")
 
-### Data Import
+### 🎨 Modern UI/UX
 
-- Bulk import from CSV (Google Sheets export)
-- Separate inventory and sales sheet support
-- Automatic field mapping
+- Dark mode with system preference detection
+- Keyboard shortcuts (press `?` to view all)
+- Toast notifications for all actions
+- Form autocomplete from your historical data
+- Contextual empty states
+- Mobile-responsive design
 
-## Tech Stack
+## 🛠 Tech Stack
 
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript
-- **Database**: PostgreSQL (Neon)
-- **ORM**: Prisma
-- **Authentication**: NextAuth.js v5 (Google OAuth)
-- **AI**: Anthropic Claude API
-- **Styling**: Tailwind CSS
-- **Deployment**: Vercel
+| Category  | Technology                         |
+| --------- | ---------------------------------- |
+| Framework | Next.js 15 (App Router, Turbopack) |
+| Language  | TypeScript                         |
+| Database  | PostgreSQL (Neon)                  |
+| ORM       | Prisma                             |
+| Auth      | NextAuth.js v5 (Google OAuth)      |
+| AI        | Anthropic Claude API               |
+| Styling   | Tailwind CSS 4                     |
+| Testing   | Jest, Testing Library              |
+| CI/CD     | GitHub Actions, Vercel             |
 
-## Getting Started
+## 🧪 Testing
+
+The project includes 120+ tests covering:
+
+- **Unit tests**: Import utilities, profit calculations, data parsing
+- **Integration tests**: CSV import with 10 different file formats
+- **Component tests**: UI components with Testing Library
+
+```bash
+npm test              # Run all tests
+npm run test:watch    # Watch mode
+npm run test:coverage # Coverage report
+```
+
+Tests run automatically on every push—failed tests block deployment.
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js 18+
-- PostgreSQL database (local or hosted)
+- PostgreSQL database
 - Google OAuth credentials
 - Anthropic API key
 
 ### Installation
 
-1. Clone the repository:
+```bash
+# Clone the repo
+git clone https://github.com/dangitbobbeh/watch-inventory.git
+cd watch-inventory
 
-   ```bash
-   git clone https://github.com/dangitbobbeh/watch-inventory.git
-   cd watch-inventory
-   ```
+# Install dependencies
+npm install
 
-2. Install dependencies:
+# Set up environment
+cp .env.example .env
+# Edit .env with your credentials
 
-   ```bash
-   npm install
-   ```
+# Set up database
+npx prisma migrate dev
 
-3. Set up environment variables:
+# Start dev server
+npm run dev
+```
 
-   ```bash
-   cp .env.example .env
-   ```
+### Environment Variables
 
-   Fill in your `.env` file:
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/watch_inventory"
+ANTHROPIC_API_KEY="sk-ant-..."
+AUTH_SECRET="generate-with-openssl-rand-base64-32"
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+```
 
-   ```
-   DATABASE_URL="postgresql://user:password@localhost:5432/watch_inventory"
-   ANTHROPIC_API_KEY="sk-ant-..."
-   AUTH_SECRET="generate-with-openssl-rand-base64-32"
-   GOOGLE_CLIENT_ID="your-google-client-id"
-   GOOGLE_CLIENT_SECRET="your-google-client-secret"
-   ```
-
-4. Set up the database:
-
-   ```bash
-   npx prisma migrate dev
-   ```
-
-5. Run the development server:
-
-   ```bash
-   npm run dev
-   ```
-
-6. Open [http://localhost:3000](http://localhost:3000)
-
-### Google OAuth Setup
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Navigate to **APIs & Services** → **Credentials**
-4. Click **Create Credentials** → **OAuth client ID**
-5. Select **Web application**
-6. Add authorized redirect URIs:
-   - `http://localhost:3000/api/auth/callback/google` (development)
-   - `https://your-domain.vercel.app/api/auth/callback/google` (production)
-7. Copy the Client ID and Client Secret to your `.env` file
-
-### Generate AUTH_SECRET
+Generate `AUTH_SECRET`:
 
 ```bash
 openssl rand -base64 32
 ```
 
-## Deployment
+### Google OAuth Setup
 
-### Deploy to Vercel
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create/select a project → **APIs & Services** → **Credentials**
+3. **Create Credentials** → **OAuth client ID** → **Web application**
+4. Add redirect URIs:
+   - `http://localhost:3000/api/auth/callback/google` (dev)
+   - `https://your-domain.vercel.app/api/auth/callback/google` (prod)
 
-1. Push your code to GitHub
-2. Import the project in [Vercel](https://vercel.com)
-3. Add a Postgres database (Neon recommended via Vercel Storage)
-4. Set environment variables in Vercel dashboard
+## 📦 Deployment
+
+### Vercel (Recommended)
+
+1. Push to GitHub
+2. Import project in [Vercel](https://vercel.com)
+3. Add Postgres via Vercel Storage (Neon)
+4. Set environment variables
 5. Deploy
 
-After deployment, run migrations against production:
+Migrations run automatically via the build command.
 
-```bash
-DATABASE_URL="your-production-url" npx prisma migrate deploy
-```
+## 📄 CSV Import
 
-Don't forget to add your production callback URL to Google OAuth.
+The AI import handles any column naming, but here's what it looks for:
 
-## CSV Import Format
+### Watch Details
 
-### Inventory Sheet
+Brand, Model, Reference/Ref #, Serial/S/N, Year, Material, Dial Color, Diameter, Condition, Accessories
 
-| Column                           | Description                             |
-| -------------------------------- | --------------------------------------- |
-| ID                               | Unique identifier (used to match sales) |
-| Brand                            | Watch brand                             |
-| Model                            | Watch model                             |
-| Material                         | Case material                           |
-| Reference Number                 | Reference/model number                  |
-| Year                             | Production year                         |
-| Accessories                      | Box, papers, etc.                       |
-| Comments                         | Notes                                   |
-| Purchase Date                    | Date acquired                           |
-| Purchase Location                | Source (eBay, dealer, etc.)             |
-| Purchase Price                   | Amount paid                             |
-| Shipping Cost                    | Inbound shipping                        |
-| Additional Costs (service, etc.) | Service, repairs, etc.                  |
+### Purchase Info
 
-### Sales Sheet
+Purchase Date, Source/Dealer/Bought From, Cost/Price Paid, Shipping, Service/Repair Costs
 
-| Column         | Description                     |
-| -------------- | ------------------------------- |
-| Sale ID        | Unique sale identifier          |
-| Watch ID       | Matches ID from inventory sheet |
-| Sale Platform  | Where it sold                   |
-| Sale Date      | Date of sale                    |
-| Sold Price     | Total sale price                |
-| Sales Tax      | Tax collected                   |
-| Platform Fees  | eBay, PayPal fees, etc.         |
-| Marketing Fees | Advertising costs               |
-| Shipping Cost  | Outbound shipping               |
+### Sale Info
 
-## Contributing
+Sale Date, Sale Price/Sold For, Platform, Fees/Commission, Tax, Shipping Out, Marketing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+### Status
 
-## License
+"For Sale", "Available", "Listed" → `in_stock`  
+"Sold", "Completed", "Closed" → `sold`  
+"Traded", "Trade" → `traded`  
+"Consigned", "Memo" → `consigned`
+
+Unrecognized columns are stored as custom data and displayed on the watch detail page.
+
+## 🤝 Contributing
+
+Contributions welcome! Please open an issue first to discuss what you'd like to change.
+
+## 📜 License
 
 MIT License - see [LICENSE](LICENSE) for details.
+
+---
+
+Built by [David Bernstein](https://github.com/dangitbobbeh)
