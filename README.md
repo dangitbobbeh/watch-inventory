@@ -80,17 +80,7 @@ Upload any CSV format and Claude automatically maps columns to the correct field
 
 ## 🧪 Testing
 
-The project includes 120+ tests covering:
-
-- **Unit tests**: Import utilities, profit calculations, data parsing
-- **Integration tests**: CSV import with 10 different file formats
-- **Component tests**: UI components with Testing Library
-
-```bash
-npm test              # Run all tests
-npm run test:watch    # Watch mode
-npm run test:coverage # Coverage report
-```
+The project includes tests covering imports and calculations.
 
 Tests run automatically on every push—failed tests block deployment.
 
