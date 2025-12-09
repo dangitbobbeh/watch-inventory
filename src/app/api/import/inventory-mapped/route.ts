@@ -1,31 +1,33 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { auth } from '@/lib/auth';
-import { transformInventoryRow, validateRequiredFields } from '@/lib/import-utils';
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import {
+  transformInventoryRow,
+  validateRequiredFields,
+} from "@/lib/import-utils";
+import { Prisma } from "@prisma/client";
 
 export async function POST(request: Request) {
   const session = await auth();
-  
+
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { rows } = await request.json();
-  
+
   let success = 0;
   const errors: string[] = [];
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     try {
-      // Validate required fields
-      const validation = validateRequiredFields(row, ['brand', 'model']);
+      const validation = validateRequiredFields(row, ["brand", "model"]);
       if (!validation.valid) {
-        errors.push(`Row ${i + 1}: missing ${validation.missing.join(', ')}`);
+        errors.push(`Row ${i + 1}: missing ${validation.missing.join(", ")}`);
         continue;
       }
 
-      // Transform the row
       const { data, customData } = transformInventoryRow(row);
 
       await prisma.watch.create({
@@ -56,13 +58,14 @@ export async function POST(request: Request) {
           marketingCosts: data.marketingCosts as number | null,
           shippingCosts: data.shippingCosts as number | null,
           status: data.status as string,
-          customData: Object.keys(customData).length > 0 ? customData : null,
+          customData:
+            Object.keys(customData).length > 0 ? customData : Prisma.JsonNull,
         },
       });
 
       success++;
     } catch (error) {
-      const msg = error instanceof Error ? error.message : 'Unknown error';
+      const msg = error instanceof Error ? error.message : "Unknown error";
       errors.push(`Row ${i + 1}: ${msg}`);
     }
   }

@@ -1,5 +1,6 @@
 "use client";
 
+import { Prisma } from "@prisma/client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -37,7 +38,7 @@ type Watch = {
   status: string;
   createdAt: Date;
   updatedAt: Date;
-  customData: Record<string, string> | null;
+  customData: Prisma.JsonValue;
 };
 
 type AutocompleteOptions = {
