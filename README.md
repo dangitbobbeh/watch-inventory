@@ -82,7 +82,7 @@ Upload any CSV format and Claude automatically maps columns to the correct field
 
 The project includes tests covering imports and calculations.
 
-Tests run automatically on every push—failed tests block deployment.
+Tests run automatically on every push. Failed tests block deployment.
 
 ## 🚀 Getting Started
 
