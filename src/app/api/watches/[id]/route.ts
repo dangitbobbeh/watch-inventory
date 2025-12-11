@@ -43,6 +43,15 @@ export async function PUT(
     return NextResponse.json({ error: "Watch not found" }, { status: 404 });
   }
 
+  // Auto-set status to "sold" if sale price is being added to a watch that didn't have one
+  let status = data.status;
+  const hadNoSalePrice = !existing.salePrice;
+  const nowHasSalePrice = data.salePrice && parseFloat(data.salePrice) > 0;
+
+  if (hadNoSalePrice && nowHasSalePrice && status !== "sold") {
+    status = "sold";
+  }
+
   const watch = await prisma.watch.update({
     where: { id },
     data: {
@@ -69,7 +78,7 @@ export async function PUT(
       salesTax: data.salesTax,
       marketingCosts: data.marketingCosts,
       shippingCosts: data.shippingCosts,
-      status: data.status,
+      status,
       notes: data.notes,
     },
   });
