@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import Combobox from "../../../app/components/combobox";
-import { Database } from "lucide-react";
+import { Database, ArrowLeftRight, Copy } from "lucide-react";
 
 type Watch = {
   id: string;
@@ -60,6 +60,7 @@ export default function WatchForm({ watch }: { watch: Watch }) {
     sources: [],
     platforms: [],
   });
+  const [duplicating, setDuplicating] = useState(false);
 
   useEffect(() => {
     fetch("/api/autocomplete")
@@ -173,6 +174,47 @@ export default function WatchForm({ watch }: { watch: Watch }) {
     } catch {
       toast.error("Something went wrong");
       setDeleting(false);
+    }
+  }
+
+  async function handleDuplicate() {
+    setDuplicating(true);
+    try {
+      const res = await fetch("/api/watches", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          brand: watch.brand,
+          model: watch.model,
+          reference: watch.reference,
+          serial: null, // Clear serial for duplicate
+          year: watch.year,
+          caliber: watch.caliber,
+          caseMaterial: watch.caseMaterial,
+          dialColor: watch.dialColor,
+          diameter: watch.diameter,
+          condition: watch.condition,
+          accessories: watch.accessories,
+          purchasePrice: null, // Clear purchase info
+          purchaseDate: null,
+          purchaseSource: watch.purchaseSource,
+          purchaseShippingCost: null,
+          additionalCosts: null,
+          notes: `Duplicated from ${watch.brand} ${watch.model}`,
+        }),
+      });
+
+      if (res.ok) {
+        const newWatch = await res.json();
+        toast.success("Watch duplicated! Redirecting to new watch...");
+        router.push(`/inventory/${newWatch.id}`);
+      } else {
+        toast.error("Failed to duplicate watch");
+        setDuplicating(false);
+      }
+    } catch {
+      toast.error("Something went wrong");
+      setDuplicating(false);
     }
   }
 
@@ -516,15 +558,28 @@ export default function WatchForm({ watch }: { watch: Watch }) {
         <button
           type="submit"
           disabled={saving}
-          className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2 transition-colors"
+          className="bg-black dark:bg-white text-white dark:text-black px-6 py-2 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 disabled:opacity-50 flex items-center gap-2 transition-colors"
         >
           {saving && <Loader2 className="animate-spin" size={16} />}
           {saving ? "Saving..." : "Save Changes"}
         </button>
         <button
           type="button"
+          onClick={handleDuplicate}
+          disabled={duplicating}
+          className="px-6 py-2 rounded-lg border dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 transition-colors"
+        >
+          {duplicating ? (
+            <Loader2 className="animate-spin" size={16} />
+          ) : (
+            <Copy size={16} />
+          )}
+          {duplicating ? "Duplicating..." : "Duplicate"}
+        </button>
+        <button
+          type="button"
           onClick={() => router.push("/inventory")}
-          className="px-6 py-2 rounded-lg border hover:bg-gray-50 transition-colors"
+          className="px-6 py-2 rounded-lg border dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
         >
           Cancel
         </button>

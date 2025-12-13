@@ -89,6 +89,13 @@ model Watch {
   marketingCosts Decimal?  @default(0)
   shippingCosts  Decimal?  @default(0)
 
+  // Trade tracking
+  tradedForWatchId  String?  @unique
+  tradedForWatch    Watch?   @relation("TradeLink", fields: [tradedForWatchId], references: [id])
+  tradedFromWatch   Watch?   @relation("TradeLink")
+  tradeValue        Decimal?
+  tradeCounterparty String?
+
   // Metadata
   importId  String?  @unique
   status    String   @default("in_stock")

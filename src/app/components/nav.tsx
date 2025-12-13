@@ -19,10 +19,9 @@ const navItems = [
   { href: "/", label: "Dashboard" },
   { href: "/inventory", label: "Inventory" },
   { href: "/reports", label: "Reports" },
-  { href: "/ai/chat", label: "AI Chat" },
-  { href: "/ai/pricing", label: "AI Pricing" },
-  { href: "/ai/advisor", label: "AI Advisor" },
+  { href: "/ai/chat", label: "AI Assistant" },
   { href: "/inventory/new", label: "Add Watch" },
+  { href: "/trade", label: "Trade" },
   { href: "/import", label: "Import" },
 ];
 
