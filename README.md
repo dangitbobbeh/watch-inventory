@@ -1,6 +1,6 @@
 # ⌚ Watch Inventory
 
-A full-stack inventory management system for luxury watch dealers, featuring AI-powered CSV import, profit analytics, and real-time business insights.
+A full-stack inventory management system for luxury watch dealers, featuring AI-powered CSV import, trade tracking, profit analytics, and real-time business insights.
 
 **Live Demo:** [watch-inventory-two.vercel.app](https://watch-inventory-two.vercel.app/)
 
@@ -25,14 +25,35 @@ Upload any CSV format and Claude automatically maps columns to the correct field
 - **Custom fields**: Columns that don't fit the schema are preserved as JSON
 - **Two import modes**: Create new inventory OR update existing watches with sale data
 
+### 🔄 Trade Tracking
+
+Record watch-for-watch trades with a guided wizard that handles the bookkeeping automatically.
+
+- **4-step trade flow**: Select outgoing watch → Set trade value → Enter incoming watch details → Confirm
+- **Cash difference support**: Even trades, trades where you receive cash, or trades where you pay cash
+- **Automatic cost basis**: Calculates correct cost basis for the incoming watch
+- **Linked records**: Trade relationships are tracked—see what you traded for what
+- **Profit attribution**: Trade value counts as sale price for P&L calculations
+
 ### 📊 Inventory Management
 
 - Track watches with detailed specs (brand, model, reference, serial, year, condition, accessories)
 - Record full purchase details (source, price, shipping, service costs)
 - Track sales with complete cost breakdown (platform fees, marketing, shipping, tax)
 - Automatic profit/loss calculation per watch
+- **Auto-sold status**: Adding a sale price automatically marks the watch as sold
+- **Duplicate watch**: One-click duplication for when you buy the same model again
 - Filter and search by brand, model, reference, status, source, or platform
 - Sortable columns with pagination
+
+### 📤 CSV Export
+
+Export your inventory data for backup, analysis, or use in other tools.
+
+- All watch details and financials included
+- Calculated fields: total cost, total fees, profit, ROI %
+- Filter by status (all, in stock, sold)
+- Properly escaped CSV format
 
 ### 💰 Financial Analytics
 
@@ -49,11 +70,17 @@ Upload any CSV format and Claude automatically maps columns to the correct field
 - Inventory aging analysis (days in stock)
 - Average days to sell metrics
 
-### 🧠 AI Business Tools
+### 🧠 AI Assistant
 
-- **Pricing Assistant**: Get purchase recommendations based on your historical sales data
-- **Inventory Advisor**: Actionable insights on slow movers, pricing adjustments, and opportunities
+A unified AI interface for all your business intelligence needs:
+
+- **Quick Actions**: One-click buttons for common tasks
+  - Analyze Inventory
+  - Help Price a Watch
+  - Find Slow Movers
+  - Performance Review
 - **Business Chat**: Natural language queries ("What's my best brand?", "How did Q3 compare to Q2?")
+- **Context-aware**: AI has access to your full inventory and sales history
 
 ### 🎨 Modern UI/UX
 
@@ -80,9 +107,9 @@ Upload any CSV format and Claude automatically maps columns to the correct field
 
 ## 🧪 Testing
 
-The project includes tests covering imports and calculations.
+The project includes 120+ tests covering imports and calculations.
 
-Tests run automatically on every push. Failed tests block deployment.
+Tests run automatically on every push—failed tests block deployment.
 
 ## 🚀 Getting Started
 
