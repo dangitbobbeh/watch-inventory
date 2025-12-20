@@ -12,9 +12,9 @@ A full-stack inventory management system for luxury watch dealers, featuring AI-
 
 <img width="1230" height="762" alt="Screenshot 2025-12-08 at 2 26 12 PM" src="https://github.com/user-attachments/assets/9db8541e-e7f3-461b-94d4-7ed0d13b8695" />
 
-## ✨ Features
+## Features
 
-### 🤖 AI-Powered CSV Import
+### AI-Powered CSV Import
 
 Upload any CSV format and Claude automatically maps columns to the correct fields—no manual configuration required.
 
@@ -25,7 +25,7 @@ Upload any CSV format and Claude automatically maps columns to the correct field
 - **Custom fields**: Columns that don't fit the schema are preserved as JSON
 - **Two import modes**: Create new inventory OR update existing watches with sale data
 
-### 🔄 Trade Tracking
+### Trade Tracking
 
 Record watch-for-watch trades with a guided wizard that handles the bookkeeping automatically.
 
@@ -35,7 +35,7 @@ Record watch-for-watch trades with a guided wizard that handles the bookkeeping 
 - **Linked records**: Trade relationships are tracked—see what you traded for what
 - **Profit attribution**: Trade value counts as sale price for P&L calculations
 
-### 📊 Inventory Management
+### Inventory Management
 
 - Track watches with detailed specs (brand, model, reference, serial, year, condition, accessories)
 - Record full purchase details (source, price, shipping, service costs)
@@ -46,7 +46,7 @@ Record watch-for-watch trades with a guided wizard that handles the bookkeeping 
 - Filter and search by brand, model, reference, status, source, or platform
 - Sortable columns with pagination
 
-### 📤 CSV Export
+### CSV Export
 
 Export your inventory data for backup, analysis, or use in other tools.
 
@@ -55,14 +55,14 @@ Export your inventory data for backup, analysis, or use in other tools.
 - Filter by status (all, in stock, sold)
 - Properly escaped CSV format
 
-### 💰 Financial Analytics
+### Financial Analytics
 
 - Real-time dashboard: inventory count, total sales, profit, average margin
 - Detailed P&L breakdown per transaction
 - ROI and margin calculations
 - Support for cents-level precision
 
-### 📈 Reports
+### Reports
 
 - Profit breakdown by brand, source, and sale platform
 - Monthly performance trends
@@ -70,7 +70,7 @@ Export your inventory data for backup, analysis, or use in other tools.
 - Inventory aging analysis (days in stock)
 - Average days to sell metrics
 
-### 🧠 AI Assistant
+### AI Assistant
 
 A unified AI interface for all your business intelligence needs:
 
@@ -82,7 +82,7 @@ A unified AI interface for all your business intelligence needs:
 - **Business Chat**: Natural language queries ("What's my best brand?", "How did Q3 compare to Q2?")
 - **Context-aware**: AI has access to your full inventory and sales history
 
-### 🎨 Modern UI/UX
+### Modern UI/UX
 
 - Dark mode with system preference detection
 - Keyboard shortcuts (press `?` to view all)
@@ -91,7 +91,7 @@ A unified AI interface for all your business intelligence needs:
 - Contextual empty states
 - Mobile-responsive design
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Category  | Technology                         |
 | --------- | ---------------------------------- |
@@ -105,13 +105,13 @@ A unified AI interface for all your business intelligence needs:
 | Testing   | Jest, Testing Library              |
 | CI/CD     | GitHub Actions, Vercel             |
 
-## 🧪 Testing
+## Testing
 
 The project includes 120+ tests covering imports and calculations.
 
 Tests run automatically on every push—failed tests block deployment.
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -166,7 +166,7 @@ openssl rand -base64 32
    - `http://localhost:3000/api/auth/callback/google` (dev)
    - `https://your-domain.vercel.app/api/auth/callback/google` (prod)
 
-## 📦 Deployment
+## Deployment
 
 ### Vercel (Recommended)
 
@@ -178,7 +178,7 @@ openssl rand -base64 32
 
 Migrations run automatically via the build command.
 
-## 📄 CSV Import
+## CSV Import
 
 The AI import handles any column naming, but here's what it looks for:
 
@@ -203,11 +203,11 @@ Sale Date, Sale Price/Sold For, Platform, Fees/Commission, Tax, Shipping Out, Ma
 
 Unrecognized columns are stored as custom data and displayed on the watch detail page.
 
-## 🤝 Contributing
+## Contributing
 
 Contributions welcome! Please open an issue first to discuss what you'd like to change.
 
-## 📜 License
+## License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
